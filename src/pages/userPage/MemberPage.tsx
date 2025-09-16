@@ -1,29 +1,18 @@
 import { Box, Button, Pagination, Stack } from "@mui/material";
-import useResource from "../../hooks/useResource";
 import GenericTable, { type GenericColumn } from "../../components/GenericTable";
 import AddIcon from '@mui/icons-material/Add';
-import FormCommon from "../common/FormCommon";
 import { useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import api from "../../apis/api";
+import GenericForm from "../../components/GenericForm";
+import FormInput from "../common/FormInput";
 
-interface MemberFormValues {
-    email: string;
-    password: string;
-    name: string;
-}
-
-
-const endpoints = {
-    list: "/auth/member",
-    item: "/auth/member",
-    create: "/auth/member/register",
-    update: "/auth/member",
-    delete: "/auth/member",
-}
-
+const padStart = (value: any) => value?.toString().padStart(3, "0");
 const columns: GenericColumn[] = [
     {
         id: 'id',
-        label: 'USER ID'
+        label: 'USER ID',
+        renderCell: padStart
     },
     {
         id: "name",
@@ -35,45 +24,119 @@ const columns: GenericColumn[] = [
     },
     {
         id: "updatedAt",
-        label: "Updated At"
+        label: "Updated At",
+        renderCell: (value: any) => new Date(value).toLocaleString()
     },
     {
         id: "createdAt",
-        label: "Created At"
+        label: "Created At",
+        renderCell: (value: any) => new Date(value).toLocaleString()
     },
 ]
 
-const MemberPage = () => {
+
+type filters = {
+    page?: number;
+    limit?: number;
+    search?: string;
+    [key: string]: any;
+}
+
+
+const MemberPage = ({ key = "members" }) => {
+    const queryClient = useQueryClient();
     const [open, setOpen] = useState(false);
-    const { list, isListLoading, deleteResource, createResource, setPage } = useResource("member", endpoints, { limit: 5 });
-    if (isListLoading) {
-        return <>Loading</>
-    }
+    const [id, setId] = useState<number | null>(null);
+    const [form, setForm] = useState({
+        name: "",
+        email: "",
+        password: ""
 
+    })
+    const [filter, setFilter] = useState<filters>({ page: 1, limit: 3 });
+    // For Fetching The List
+    const { data: list } = useQuery({
+        queryKey: [key, filter],
+        queryFn: async ({ queryKey }) => {
+            const [_, filter] = queryKey;
+            // console.log("Fetching data with filter:", filter);
+            const data = (await api.get("/auth/member", { params: { ...(typeof filter === "object" && filter !== null ? filter : {}) } }) as any).data;
+            // console.log("list", data);
+            return data;
+        },
+    })
+    // For Mutating The Data (Create, Update, Delete)
+    const { mutate: mutate } = useMutation({
+        mutationFn: async ({ method, data, id }: { method: "POST" | "PUT" | "DELETE"; data?: any, id?: string | number }) => {
+            // console.log("Mutating Data ", method, data);
+            if (method === "POST") {
+                const _data = await api.post("/auth/member/register", data);
+                return _data.data;
+            } else if (method === "PUT") {
+                const _data = await api.put("/auth/member/" + id, data);
+                return _data.data;
+            } else if (method === "DELETE") {
+                const _data = await api.delete("/auth/member/" + id);
+                return _data.data;
+            }
+            return { message: "provide an appropriate method" };
+        },
+        onSuccess: (_data) => {
+            // console.log("Mutated Data", data)
+            queryClient.invalidateQueries({ queryKey: [key] })
+        },
+        onError: (e) => {
+            console.log(e)
+        }
 
-    const handleform = (
-        values: MemberFormValues,
-        formikHelpers: { resetForm: () => void }
-    ) => {
-        // console.log(values);
-        createResource(values);
-        formikHelpers.resetForm();
+    })
+
+    // Handle Submut of the Form
+    const handleSubmit = (info: any) => {
+        console.log("Submitting Form", info);
+        if (id) {
+            mutate(info);
+        } else {
+            mutate(info);
+        }
         setOpen(false);
+        setForm({ name: "", email: "", password: "" });
+        setId(null);
     }
-    const handleActions = async (action: string, row: any) => {
-        if (action === "DELETE") {
-            deleteResource(row.id)
+    // Handle Edit, Delete, View Actions
+    const handleActions = (method: "EDIT" | "DELETE" | "VIEW", values: { [key: string]: any }, id: number) => {
+        if (method === "EDIT") {
+            setForm({
+                name: values.name ?? "",
+                email: values.email ?? "",
+                password: values.password ?? ""
+            });
+            setId(id);
+            setOpen(true);
+        } else if (method === "DELETE") {
+            setFilter({ ...filter, page: 1 });
+            mutate({ method: "DELETE", id });
+        } else if (method === "VIEW") {
+            setForm({
+                name: values.name ?? "",
+                email: values.email ?? "",
+                password: values.password ?? ""
+            });
+            setId(id);
+            setOpen(true);
         }
     }
+
     return (
         <Box>
-            <FormCommon open={open} setOpen={setOpen} initialValues={{
-                "email": "",
-                "password": "",
-                "name": "",
-            }} onSubmit={handleform} title="Add Member" />
+            <GenericForm open={open} setOpen={setOpen} initialValue={form} onSubmit={handleSubmit} id={id}>
+                <FormInput name="name" label="Name" type="text" required />
+                <FormInput name="email" label="Email" type="email" required />
+                {(!id) && (<FormInput name="password" label="Password" type="password" required={id ? false : true} />)}
+
+            </GenericForm>
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-                <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpen(true)}>Add Member</Button>
+                <Button variant="contained" startIcon={<AddIcon />} onClick={() => { setOpen(true); setForm({ name: "", email: "", password: "" }); setId(null); }}>Add Member</Button>
             </Box>
             <GenericTable
                 data={(list as any)?.data?.map((d: any) => d.user as any)}
@@ -84,7 +147,7 @@ const MemberPage = () => {
             />
             {(list as any)?.pages > 1 && (
                 <Stack sx={{ width: "100%", alignItems: "center", justifyContent: "center" }}>
-                    <Pagination count={(list as any).pages} showFirstButton showLastButton onChange={(_e, page) => setPage(page)} />
+                    <Pagination count={(list as any).pages} showFirstButton showLastButton onChange={(_e, page) => { setFilter({ ...filter, page }) }} />
                 </Stack>
             )}
         </Box>

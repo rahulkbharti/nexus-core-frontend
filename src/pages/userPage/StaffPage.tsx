@@ -1,24 +1,19 @@
 import { Box, Button, FormControl, InputLabel, MenuItem, Pagination, Select, Stack } from "@mui/material";
-import useResource from "../../hooks/useResource";
 import GenericTable, { type GenericColumn } from "../../components/GenericTable";
 import AddIcon from '@mui/icons-material/Add';
-import FormCommon from "../common/FormCommon";
-import { useEffect, useState } from "react";
-import { useFetchData } from "../../hooks/useApi";
+import { useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "../../apis/api";
+import GenericForm from "../../components/GenericForm";
+import FormInput from "../common/FormInput";
+import FormOption from "../common/FormOption";
 
-const endpoints = {
-    list: "/auth/staff",
-    item: "/auth/staff",
-    create: "/auth/staff/register",
-    update: "/auth/staff",
-    delete: "/auth/staff",
-}
-
+const padStart = (value: any) => value?.toString().padStart(3, "0");
 const columns: GenericColumn[] = [
     {
         id: 'id',
-        label: 'USER ID'
+        label: 'USER ID',
+        renderCell: padStart
     },
     {
         id: "name",
@@ -29,73 +24,169 @@ const columns: GenericColumn[] = [
         label: "Email"
     },
     {
-        id: "role",
-        label: "Role"
-    },
-    {
         id: "updatedAt",
-        label: "Updated At"
+        label: "Updated At",
+        renderCell: (value: any) => new Date(value).toLocaleString()
     },
     {
         id: "createdAt",
-        label: "Created At"
-    }
+        label: "Created At",
+        renderCell: (value: any) => new Date(value).toLocaleString()
+    },
 ]
 
-const StaffPage = () => {
-    const [open, setOpen] = useState(false);
-    const [roles, seteRoles] = useState<any[]>([]);
-    const { list, isListLoading, createResource, setPage } = useResource("staff", endpoints, { limit: 5, role: "all" });
-    if (isListLoading) {
-        return <>Loading</>
-    }
-    const handleform = (
-        values: { email: string; password: string; name: string; roleId: number },
-        formikHelpers: { resetForm: () => void }
-    ) => {
-        // console.log(values);
-        createResource(values);
-        formikHelpers.resetForm();
-        setOpen(false);
-    }
-    useEffect(() => {
-        api.get("/auth/role").then(e => seteRoles(e.data.data))
-    }, [])
+type filters = {
+    page?: number;
+    limit?: number;
+    search?: string;
+    [key: string]: any;
+}
 
+const StaffPage = ({ key = "members" }) => {
+    const queryClient = useQueryClient();
+    const [open, setOpen] = useState(false);
+    const [id, setId] = useState<number | null>(null);
+    const [form, setForm] = useState({
+        name: "",
+        email: "",
+        password: "",
+        roleId: 0,
+
+    })
+    const [filter, setFilter] = useState<filters>({ page: 1, limit: 3, role: 0 });
+    // For Fetching The List
+    const { data: list } = useQuery({
+        queryKey: [key, filter],
+        queryFn: async ({ queryKey }) => {
+            const [_, filter] = queryKey;
+            // console.log("Fetching data with filter:", filter);
+            const data = (await api.get("/auth/staff", { params: { ...(typeof filter === "object" && filter !== null ? filter : {}) } }) as any).data;
+            // console.log("list", data);
+            return data;
+        },
+    })
+    // Getting Role
+    const { data: roles } = useQuery({
+        queryKey: ['roles'],
+        queryFn: async () => {
+            const data = (await api.get("/auth/role") as any).data;
+            return data;
+        },
+        staleTime: Infinity
+    })
+    // For Mutating The Data (Create, Update, Delete)
+    const { mutate: mutate } = useMutation({
+        mutationFn: async ({ method, data, id }: { method: "POST" | "PUT" | "DELETE"; data?: any, id?: string | number }) => {
+            // console.log("Mutating Data ", method, data);
+            if (method === "POST") {
+                const _data = await api.post("/auth/staff/register", data);
+                return _data.data;
+            } else if (method === "PUT") {
+                const _data = await api.put("/auth/staff/" + id, data);
+                return _data.data;
+            } else if (method === "DELETE") {
+                const _data = await api.delete("/auth/staff/" + id);
+                return _data.data;
+            }
+            return { message: "provide an appropriate method" };
+        },
+        onSuccess: (_data) => {
+            // console.log("Mutated Data", data)
+            queryClient.invalidateQueries({ queryKey: [key] })
+        },
+        onError: (e) => {
+            console.log(e)
+        }
+
+    })
+
+    // Handle Submut of the Form
+    const handleSubmit = (info: any) => {
+        // console.log("Submitting Form", info);
+        if (id) {
+            mutate(info);
+        } else {
+            mutate(info);
+        }
+        setOpen(false);
+        setForm({ name: "", email: "", password: "", roleId: 0 });
+        setId(null);
+    }
+    // Handle Edit, Delete, View Actions
+    const handleActions = (method: "EDIT" | "DELETE" | "VIEW", values: { [key: string]: any }, id: number) => {
+        console.log("Actionsss", method, values, id);
+
+        if (method === "EDIT") {
+            setForm({
+                name: values.name ?? "",
+                email: values.email ?? "",
+                password: values.password ?? "",
+                roleId: values.roleId ?? 0
+            });
+            setId(id);
+            setOpen(true);
+        } else if (method === "DELETE") {
+            setFilter({ ...filter, page: 1 });
+            mutate({ method: "DELETE", id });
+        } else if (method === "VIEW") {
+            setForm({
+                name: values.name ?? "",
+                email: values.email ?? "",
+                password: values.password ?? "",
+                roleId: values.roleId ?? 0
+            });
+            setId(id);
+            setOpen(true);
+        }
+    }
+
+    console.log(list)
     return (
         <Box>
-            <FormCommon open={open} setOpen={setOpen} initialValues={{
-                "email": "",
-                "password": "",
-                "name": "",
-                "roleId": 8
-            }} onSubmit={handleform} title="Add Member" />
+            <GenericForm open={open} setOpen={setOpen} initialValue={form} onSubmit={handleSubmit} id={id}>
+                <FormInput name="name" label="Name" type="text" required />
+                <FormInput name="email" label="Email" type="email" required />
+                {(!id) && (<FormInput name="password" label="Password" type="password" required={id ? false : true} />)}
+                <FormOption name="roleId" label="Role" required>
+                    {(roles?.data || []).map((role: any) => (
+                        <MenuItem key={role.id} value={role.id}>{role.name}</MenuItem>
+                    ))}
+                </FormOption>
+            </GenericForm>
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2, gap: 2 }}>
                 <FormControl size="small" sx={{ minWidth: 120 }}>
                     <InputLabel>Role</InputLabel>
                     <Select
-                        // value={filters.role}
+                        value={filter.role}
                         label="Role"
-                    // onChange={(e) => setFilters(prev => ({ ...prev, role: e.target.value }))}
+                        onChange={(e) => { setFilter({ ...filter, role: e.target.value, page: 1 }) }}
                     >
-                        <MenuItem value="all">All Role</MenuItem>
-                        {(roles as any)?.map((role: any) => (
+                        <MenuItem value={0}>All Role</MenuItem>
+                        {(roles?.data || []).map((role: any) => (
                             <MenuItem key={role.id} value={role.id}>{role.name}</MenuItem>
                         ))}
                     </Select>
                 </FormControl>
-                <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpen(true)}>Add Staff</Button>
+                <Button variant="contained" startIcon={<AddIcon />} onClick={() => { setOpen(true); setForm({ name: "", email: "", password: "", roleId: 0 }); setId(null); }}>Add Staff</Button>
             </Box>
             <GenericTable
-                data={(list as any)?.data?.map((d: any) => { const s = d.user as any; d.user.role = d.role.name; return s })}
+                data={(list as any)?.data?.map((d: any) => {
+                    return { ...d.user, roleId: d.roleId }
+                })}
                 columns={columns}
                 keyField="id"
                 handleSort={() => { }}
-                handleEdit={(action: string, row: any) => { console.log(action, row) }}
+                handleEdit={handleActions}
             />
             {(list as any)?.pages > 1 && (
                 <Stack sx={{ width: "100%", alignItems: "center", justifyContent: "center" }}>
-                    <Pagination count={(list as any).pages} showFirstButton showLastButton onChange={(_e, page) => setPage(page)} />
+                    <Pagination
+                        count={(list as any).pages}
+                        // page={filter.page}
+                        showFirstButton
+                        showLastButton
+                        onChange={(_e, page) => { setFilter({ ...filter, page }) }}
+                    />
                 </Stack>
             )}
         </Box>

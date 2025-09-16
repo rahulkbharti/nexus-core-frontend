@@ -67,8 +67,8 @@ const GenericTable: React.FC<GenericTableProps> = ({
 
     return (
         <Paper sx={{ width: '100%', mb: 2 }}>
-            <TableContainer >
-                <Table size='small'>
+            <TableContainer sx={{ minHeight: 400 }}>
+                <Table size='small' aria-label="generic table">
                     <TableHead>
                         <TableRow>
                             {columns.map((column) => (
@@ -108,19 +108,47 @@ const GenericTable: React.FC<GenericTableProps> = ({
                                 ))}
                                 {actions && (
                                     <TableCell align="center">
-                                        <IconButton size="small" color="primary" onClick={() => handleEdit("VIEW", row)}>
+                                        <IconButton
+                                            size="small"
+                                            color="primary"
+                                            onClick={() => {
+                                                const { id, ...rowWithoutId } = row;
+                                                handleEdit("VIEW", rowWithoutId, id);
+                                            }}
+                                        >
                                             <ViewIcon />
                                         </IconButton>
-                                        <IconButton size="small" color="primary" onClick={() => handleEdit("EDIT", row)}>
+                                        <IconButton
+                                            size="small"
+                                            color="primary"
+                                            onClick={() => {
+                                                const { id, ...rowWithoutId } = row;
+                                                handleEdit("EDIT", rowWithoutId, id);
+                                            }}
+                                        >
                                             <EditIcon />
                                         </IconButton>
-                                        <IconButton size="small" color="error" onClick={() => handleEdit("DELETE", row)}>
+                                        <IconButton
+                                            size="small"
+                                            color="error"
+                                            onClick={() => {
+                                                const { id, ...rowWithoutId } = row;
+                                                handleEdit("DELETE", rowWithoutId, id);
+                                            }}
+                                        >
                                             <DeleteIcon />
                                         </IconButton>
                                     </TableCell>
                                 )}
                             </TableRow>
                         ))}
+                        {(!filteredData || filteredData.length === 0) && (
+                            <TableRow>
+                                <TableCell colSpan={columns.length + (actions ? 1 : 0)} align="center" sx={{ height: '100%' }}>
+                                    No Data
+                                </TableCell>
+                            </TableRow>
+                        )}
                     </TableBody>
                 </Table>
             </TableContainer>
