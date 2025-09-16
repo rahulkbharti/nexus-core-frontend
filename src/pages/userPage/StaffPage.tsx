@@ -1,4 +1,4 @@
-import { Box, Button, FormControl, InputLabel, MenuItem, Pagination, Select, Stack } from "@mui/material";
+import { Box, Button, FormControl, InputLabel, MenuItem, Pagination, Select, Stack, Typography } from "@mui/material";
 import GenericTable, { type GenericColumn } from "../../components/GenericTable";
 import AddIcon from '@mui/icons-material/Add';
 import { useState } from "react";
@@ -7,6 +7,7 @@ import api from "../../apis/api";
 import GenericForm from "../../components/GenericForm";
 import FormInput from "../common/FormInput";
 import FormOption from "../common/FormOption";
+import StaffPermissions from "./StaffPermissions";
 
 const padStart = (value: any) => value?.toString().padStart(3, "0");
 const columns: GenericColumn[] = [
@@ -144,14 +145,18 @@ const StaffPage = ({ key = "members" }) => {
     return (
         <Box>
             <GenericForm open={open} setOpen={setOpen} initialValue={form} onSubmit={handleSubmit} id={id}>
-                <FormInput name="name" label="Name" type="text" required />
-                <FormInput name="email" label="Email" type="email" required />
+                <Stack direction={"row"} gap={2}>
+                    <FormInput name="name" label="Name" type="text" required />
+                    <FormInput name="email" label="Email" type="email" required />
+                </Stack>
                 {(!id) && (<FormInput name="password" label="Password" type="password" required={id ? false : true} />)}
                 <FormOption name="roleId" label="Role" required>
                     {(roles?.data || []).map((role: any) => (
                         <MenuItem key={role.id} value={role.id}>{role.name}</MenuItem>
                     ))}
                 </FormOption>
+                <Typography sx={{ mb: 2 }}>Staff Permissions :</Typography>
+                <StaffPermissions permissions={[]} setPermissions={() => { }} />
             </GenericForm>
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2, gap: 2 }}>
                 <FormControl size="small" sx={{ minWidth: 120 }}>
