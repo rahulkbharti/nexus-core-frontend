@@ -11,6 +11,7 @@ import LoginPage from "./pages/auth/loginPage/LoginPage";
 import RegisterPage from "./pages/auth/registerPage/ResgisterPage";
 import { Provider } from "react-redux";
 import store from "./store/store";
+import ForgetPassword from "./pages/auth/forgetPasswordPage/forgetPage";
 
 const App = () => {
   return (
@@ -20,6 +21,7 @@ const App = () => {
           <Routes>
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/forget-password" element={<ForgetPassword />} />
             <Route path="/" element={<Layout />}>
               <Route path="/users" element={<UserPage />} />
               <Route path="/roles" element={<RolePage />} />

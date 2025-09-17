@@ -4,7 +4,7 @@ import { logout, login, type LoginData } from "../store/features/authSlice";
 // import { AxiosRequestConfig } from "axios";
 
 // --- Configuration ---
-const AUTH_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const AUTH_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 
 const api = axios.create({
   baseURL: AUTH_URL,

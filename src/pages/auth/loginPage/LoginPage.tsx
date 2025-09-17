@@ -7,7 +7,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { login, type LoginData } from "../../../store/features/authSlice";
 import { useDispatch } from "react-redux";
-
+import { Link as L } from "react-router-dom";
+import { useGoogleLogin, type TokenResponse } from "@react-oauth/google";
 
 interface LoginResponse {
     tokenObj: {
@@ -31,7 +32,7 @@ const LoginPage = () => {
     const navigate = useNavigate();
     const handleLogin = async (values: any) => {
         // console.log(values)
-        const response = await axios.post<LoginResponse>("http://localhost:5000/api/auth/login", values);
+        const response = await axios.post<LoginResponse>("http://localhost:3000/api/auth/login", values);
         if (response.status === 200) {
             const data = response.data.tokenObj
             const loginData: LoginData = {
@@ -52,11 +53,47 @@ const LoginPage = () => {
             navigate("/users")
         }
     }
+    const googleAuth = useGoogleLogin({
+        onSuccess: async (tokenResponse: Omit<TokenResponse, "error" | "error_description" | "error_uri">) => {
+            // console.log('Google Token Response:', tokenResponse);
+            try {
+                const response = await axios.post<LoginResponse>(`http://localhost:3000/api/auth/google-login`, {
+                    access_token: tokenResponse.access_token,
+                });
+
+                if (response.status === 200) {
+                    const data = response.data.tokenObj
+                    const loginData: LoginData = {
+                        accessToken: data.accessToken,
+                        refreshToken: data.refreshToken,
+                        name: data.user.name,
+                        email: data.user.email,
+                        role: data.user.role,
+                        permissions: data.user.permissions,
+                        organization: {
+                            name: data.user.organization.name,
+                            address: data.user.organization.address
+                        },
+                        exp: Date.now() + 15 * 60 * 1000, // Token expiration time (15 minutes from now)
+                    }
+                    dispatch(login(loginData));
+                    // console.log("Login successful", loginData);
+                    navigate("/users")
+                }
+            } catch (error) {
+                console.error('Error sending token to backend:', error);
+            }
+        },
+        onError: () => {
+            console.error('Google Login Failed');
+        },
+        scope: 'openid email profile',
+    });
 
     return (
         <AuthLayout coverImage="https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" >
             <Box>
-                <Formik initialValues={{ email: "admin@gmail.com", password: "123457" }} onSubmit={handleLogin}>
+                <Formik initialValues={{ email: "admin1@gmail.com", password: "123456" }} onSubmit={handleLogin}>
                     {({ handleSubmit }) => (
                         <form onSubmit={handleSubmit}>
                             <Typography variant="h5" gutterBottom sx={{ fontWeight: 800 }}>
@@ -80,9 +117,9 @@ const LoginPage = () => {
                                 Sign in
                             </Button>
                             <Link
-                                component="button"
+                                component={L}
+                                to="/forget-password"
                                 type="button"
-                                //   onClick={handleClickOpen}
                                 variant="body2"
                                 sx={{ alignSelf: 'center' }}
                             >
@@ -92,7 +129,7 @@ const LoginPage = () => {
                             <Button
                                 fullWidth
                                 variant="outlined"
-                                onClick={() => alert('Sign in with Google')}
+                                onClick={() => googleAuth()}
                                 startIcon={<Google />}
                                 size="small"
                                 sx={{ my: 1 }}
@@ -102,7 +139,8 @@ const LoginPage = () => {
                             <Typography sx={{ textAlign: 'center' }}>
                                 Don&apos;t have an account?{' '}
                                 <Link
-                                    href="/material-ui/getting-started/templates/sign-in/"
+                                    component={L}
+                                    to="/register"
                                     variant="body2"
                                     sx={{ alignSelf: 'center' }}
                                 >
