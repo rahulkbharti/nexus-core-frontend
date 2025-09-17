@@ -10,6 +10,10 @@ import ListItemIcon, { listItemIconClasses } from '@mui/material/ListItemIcon';
 import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
 import MenuButton from '../../components/MenuButton';
+import api from '../../apis/api';
+import { useNavigate } from 'react-router-dom';
+// import { useSelector } from 'react-redux';
+// import type { AuthState } from '../../store/features/authSlice';
 
 
 const MenuItem = styled(MuiMenuItem)({
@@ -17,6 +21,8 @@ const MenuItem = styled(MuiMenuItem)({
 });
 
 export default function OptionsMenu() {
+  // const authData = useSelector((state: AuthState) => state.loginData);
+  const navigate = useNavigate()
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -25,6 +31,17 @@ export default function OptionsMenu() {
   const handleClose = () => {
     setAnchorEl(null);
   };
+  const handleLogout = async () => {
+    const data = JSON.parse(localStorage.getItem("login_data") || "{}");
+    const responce = await api.post("/auth/logout", {
+      accessToken: data.accessToken,
+      refreshToken: data.refreshToken,
+    });
+    if (responce.status === 200) {
+      navigate("/login")
+    }
+
+  }
   return (
     <React.Fragment>
       <MenuButton
@@ -69,7 +86,7 @@ export default function OptionsMenu() {
             },
           }}
         >
-          <ListItemText>Logout</ListItemText>
+          <ListItemText onClick={handleLogout}>Logout</ListItemText>
           <ListItemIcon>
             <LogoutRoundedIcon fontSize="small" />
           </ListItemIcon>

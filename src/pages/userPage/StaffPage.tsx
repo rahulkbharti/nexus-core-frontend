@@ -141,7 +141,7 @@ const StaffPage = ({ key = "members" }) => {
         }
     }
 
-    console.log(list)
+    // console.log(list)
     return (
         <Box>
             <GenericForm open={open} setOpen={setOpen} initialValue={form} onSubmit={handleSubmit} id={id}>

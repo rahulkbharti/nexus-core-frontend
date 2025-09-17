@@ -10,8 +10,10 @@ import OptionsMenu from './OptionMenu';
 import SelectContent from './SelectContent';
 import MenuContent from './MenuContent';
 import LibraryIcon from '@mui/icons-material/LibraryBooks';
-import NewMenu from '../../components/Test';
-import CardAlert from './CardAlert';
+// import NewMenu from '../../components/Test';
+// import CardAlert from './CardAlert';
+import { useSelector } from 'react-redux';
+import type { AuthState } from '../../store/features/authSlice';
 
 // import MenuItem from '../../components/Test';
 // import CardAlert from './CardAlert';
@@ -32,6 +34,7 @@ const Drawer = styled(MuiDrawer)({
 });
 
 export default function SideMenu() {
+    const userData = useSelector((state: { auth: AuthState }) => state.auth.loginData) ?? null;
     return (
         <Drawer
             variant="permanent"
@@ -98,10 +101,10 @@ export default function SideMenu() {
                 />
                 <Box sx={{ mr: 'auto' }}>
                     <Typography variant="body2" sx={{ fontWeight: 500, lineHeight: '16px' }}>
-                        Riley Carter
+                        {userData && userData?.name}
                     </Typography>
                     <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                        riley@email.com
+                        {userData && userData?.email}
                     </Typography>
                 </Box>
                 <OptionsMenu />

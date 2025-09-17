@@ -1,4 +1,6 @@
 import axios from "axios";
+import store from "../store/store";
+import { logout, login, type LoginData } from "../store/features/authSlice";
 // import { AxiosRequestConfig } from "axios";
 
 // --- Configuration ---
@@ -15,58 +17,62 @@ const api = axios.create({
 // 🔁 Axios Request Interceptor
 api.interceptors.request.use(
   async (req: any & { _retry?: boolean }) => {
-    const login_data = JSON.parse(localStorage.getItem("login_data") || "{}");
-    // console.log(login_data)
-    // console.log("Intercepting request to:", login_data);
+    const userData: LoginData | null = store.getState().auth.loginData ?? null;
+    if (userData === null) return req;
+
     try {
-      if (!login_data?.accessToken) return req;
-
       const currentTime = Date.now();
-      const isExpired = login_data?.exp && currentTime > login_data.exp;
+      const isExpired = userData.exp && currentTime > userData.exp;
 
-      // ✅ Refresh if expired
       if (isExpired && !req._retry) {
-        // console.log("Token expired, refreshing...");
         req._retry = true;
 
         const response = await axios.post(`${AUTH_URL}/auth/refresh`, {
-          refreshToken: login_data.refreshToken,
+          refreshToken: userData.refreshToken,
         });
-        // console.log(response);
-        const refreshed = { ...login_data };
-        const data = (response.data as any).tokenObj as {
-          accessToken: string;
-          exp: number;
-        };
-        refreshed.accessToken = data.accessToken;
+        if (response.status !== 200) {
+          store.dispatch(logout());
+          return Promise.reject("Unable to refresh token, logging out.");
+        }
+        const refreshData = response.data as { refreshed_access_token: string };
+        console.log(
+          "Response from refresh endpoint:",
+          refreshData.refreshed_access_token
+        );
+        const refreshed = { ...userData };
+        refreshed.accessToken = refreshData.refreshed_access_token;
         refreshed.exp = Date.now() + 15 * 60 * 1000;
-
-        // Store In local Storage
-        localStorage.setItem("login_data", JSON.stringify(refreshed));
+        console.log("Storing refreshed token:", refreshed);
+        store.dispatch(login(refreshed));
 
         req.headers["Authorization"] = `Bearer ${refreshed.accessToken}`;
-        // console.log("Token refreshed:", refreshed.accessToken);
         return req;
       }
-
-      // ✅ accessToken is still valid
-      // console.log("Using existing token:", login_data.accessToken);
-
-      req.headers["Authorization"] = `Bearer ${login_data.accessToken}`;
-      // console.log(req.headers["Authorization"]);
-
+      req.headers["Authorization"] = `Bearer ${userData.accessToken}`;
       return req;
     } catch (error) {
       console.error("Token refresh failed:", error);
-      return req; // optionally reject to prevent request
+      return req;
     }
   },
   (error) => Promise.reject(error)
 );
 
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    console.error("API Error:", error);
+    if (error.status === 401) {
+      // window.location.href = "/login";
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default api;
 
-const login = async () => {
+// Remove or rename this function to avoid conflict with the imported login action creator
+const loginRequest = async () => {
   console.log("Making login request...");
 
   const response = await axios.post<{
@@ -89,4 +95,4 @@ const login = async () => {
   );
 };
 
-(window as any).login = login;
+(window as any).loginRequest = loginRequest;

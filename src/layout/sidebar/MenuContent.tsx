@@ -6,7 +6,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Stack from '@mui/material/Stack';
 // import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
-import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
+// import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
 import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
 import HelpRoundedIcon from '@mui/icons-material/HelpRounded';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
@@ -14,7 +14,7 @@ import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import ChairIcon from '@mui/icons-material/Chair';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
-import CorporateFareIcon from '@mui/icons-material/CorporateFare';
+// import CorporateFareIcon from '@mui/icons-material/CorporateFare';
 
 import { Link, useLocation } from 'react-router-dom';
 
@@ -28,8 +28,8 @@ const mainListItems = [
 ];
 
 const secondaryListItems = [
-  { text: 'Settings', icon: <SettingsRoundedIcon />, path: "/settings" },
-  { text: 'Organizations', icon: <CorporateFareIcon />, path: "/orgs" },
+  // { text: 'Settings', icon: <SettingsRoundedIcon />, path: "/settings" },
+  // { text: 'Organizations', icon: <CorporateFareIcon />, path: "/orgs" },
   { text: 'About', icon: <InfoRoundedIcon />, path: "/about" },
   { text: 'Feedback', icon: <HelpRoundedIcon />, path: "/feedback" },
 ];

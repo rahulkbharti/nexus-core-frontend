@@ -137,7 +137,7 @@ const RolePage = ({ key = "roles" }) => {
             setOpen(true);
         }
     }
-    console.log(form.permissions)
+    // console.log(form.permissions)
     return (
         <Box>
             <GenericForm open={open} setOpen={setOpen} initialValue={form} onSubmit={handleSubmit} id={id}>

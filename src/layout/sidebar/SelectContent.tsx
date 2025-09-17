@@ -3,16 +3,18 @@ import MuiAvatar from '@mui/material/Avatar';
 import MuiListItemAvatar from '@mui/material/ListItemAvatar';
 import MenuItem from '@mui/material/MenuItem';
 import ListItemText from '@mui/material/ListItemText';
-import ListItemIcon from '@mui/material/ListItemIcon';
+// import ListItemIcon from '@mui/material/ListItemIcon';
 import ListSubheader from '@mui/material/ListSubheader';
 import Select, { selectClasses } from '@mui/material/Select';
 // import Select, { SelectChangeEvent, selectClasses } from '@mui/material/Select';
-import Divider from '@mui/material/Divider';
+// import Divider from '@mui/material/Divider';
 import { styled } from '@mui/material/styles';
-import AddRoundedIcon from '@mui/icons-material/AddRounded';
-import DevicesRoundedIcon from '@mui/icons-material/DevicesRounded';
+// import AddRoundedIcon from '@mui/icons-material/AddRounded';
+// import DevicesRoundedIcon from '@mui/icons-material/DevicesRounded';
 // import SmartphoneRoundedIcon from '@mui/icons-material/SmartphoneRounded';
-import ConstructionRoundedIcon from '@mui/icons-material/ConstructionRounded';
+// import ConstructionRoundedIcon from '@mui/icons-material/ConstructionRounded';
+import CorporateFareIcon from '@mui/icons-material/CorporateFare';
+import { useSelector } from 'react-redux';
 
 const Avatar = styled(MuiAvatar)(({ theme }) => ({
     width: 28,
@@ -28,6 +30,7 @@ const ListItemAvatar = styled(MuiListItemAvatar)({
 });
 
 export default function SelectContent() {
+    const organization = useSelector((state: any) => state.auth.loginData?.organization) ?? null;
     const [company, setCompany] = React.useState('');
 
     const handleChange = (event: any) => {
@@ -57,16 +60,16 @@ export default function SelectContent() {
                 },
             }}
         >
-            <ListSubheader sx={{ pt: 0 }}>Active</ListSubheader>
+            <ListSubheader sx={{ pt: 0 }}>Active Orgnaization</ListSubheader>
             <MenuItem value="">
                 <ListItemAvatar>
                     <Avatar alt="Organization 1">
-                        <DevicesRoundedIcon sx={{ fontSize: '1rem' }} />
+                        <CorporateFareIcon sx={{ fontSize: '1rem' }} />
                     </Avatar>
                 </ListItemAvatar>
-                <ListItemText primary="Organization Name" secondary="Organization Address" />
+                <ListItemText primary={organization?.name} secondary={organization?.address} />
             </MenuItem>
-            <MenuItem value={20}>
+            {/* <MenuItem value={20}>
                 <ListItemAvatar>
                     <Avatar alt="Sitemark Store">
                         <DevicesRoundedIcon sx={{ fontSize: '1rem' }} />
@@ -89,7 +92,7 @@ export default function SelectContent() {
                     <AddRoundedIcon />
                 </ListItemIcon>
                 <ListItemText primary="Add product" secondary="Web app" />
-            </MenuItem>
+            </MenuItem> */}
         </Select>
     );
 }
