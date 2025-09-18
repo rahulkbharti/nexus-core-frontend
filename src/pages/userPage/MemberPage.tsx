@@ -50,8 +50,6 @@ const MemberPage = ({ key = "members" }) => {
     const [form, setForm] = useState({
         name: "",
         email: "",
-        password: ""
-
     })
     const [filter, setFilter] = useState<filters>({ page: 1, limit: 3 });
     // For Fetching The List
@@ -100,7 +98,7 @@ const MemberPage = ({ key = "members" }) => {
             mutate(info);
         }
         setOpen(false);
-        setForm({ name: "", email: "", password: "" });
+        setForm({ name: "", email: "" });
         setId(null);
     }
     // Handle Edit, Delete, View Actions
@@ -110,7 +108,6 @@ const MemberPage = ({ key = "members" }) => {
             setForm({
                 name: values.name ?? "",
                 email: values.email ?? "",
-                password: values.password ?? ""
             });
             setId(id);
             setOpen(true);
@@ -121,7 +118,6 @@ const MemberPage = ({ key = "members" }) => {
             setForm({
                 name: values.name ?? "",
                 email: values.email ?? "",
-                password: values.password ?? ""
             });
             setId(id);
             setOpen(true);
@@ -133,11 +129,9 @@ const MemberPage = ({ key = "members" }) => {
             <GenericForm open={open} setOpen={setOpen} initialValue={form} onSubmit={handleSubmit} id={id}>
                 <FormInput name="name" label="Name" type="text" required />
                 <FormInput name="email" label="Email" type="email" required />
-                {(!id) && (<FormInput name="password" label="Password" type="password" required={id ? false : true} />)}
-
             </GenericForm>
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-                <Button variant="contained" startIcon={<AddIcon />} onClick={() => { setOpen(true); setForm({ name: "", email: "", password: "" }); setId(null); }}>Add Member</Button>
+                <Button variant="contained" startIcon={<AddIcon />} onClick={() => { setOpen(true); setForm({ name: "", email: "" }); setId(null); }}>Add Member</Button>
             </Box>
             <GenericTable
                 data={(list as any)?.data?.map((d: any) => d.user as any)}

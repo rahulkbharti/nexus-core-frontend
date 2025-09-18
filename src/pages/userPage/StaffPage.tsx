@@ -50,7 +50,6 @@ const StaffPage = ({ key = "members" }) => {
     const [form, setForm] = useState({
         name: "",
         email: "",
-        password: "",
         roleId: 0,
 
     })
@@ -109,7 +108,7 @@ const StaffPage = ({ key = "members" }) => {
             mutate(info);
         }
         setOpen(false);
-        setForm({ name: "", email: "", password: "", roleId: 0 });
+        setForm({ name: "", email: "", roleId: 0 });
         setId(null);
     }
     // Handle Edit, Delete, View Actions
@@ -120,7 +119,6 @@ const StaffPage = ({ key = "members" }) => {
             setForm({
                 name: values.name ?? "",
                 email: values.email ?? "",
-                password: values.password ?? "",
                 roleId: values.roleId ?? 0
             });
             setId(id);
@@ -132,7 +130,6 @@ const StaffPage = ({ key = "members" }) => {
             setForm({
                 name: values.name ?? "",
                 email: values.email ?? "",
-                password: values.password ?? "",
                 roleId: values.roleId ?? 0
             });
             setId(id);
@@ -148,7 +145,6 @@ const StaffPage = ({ key = "members" }) => {
                     <FormInput name="name" label="Name" type="text" required />
                     <FormInput name="email" label="Email" type="email" required />
                 </Stack>
-                {(!id) && (<FormInput name="password" label="Password" type="password" required={id ? false : true} />)}
                 <FormOption name="roleId" label="Role" required>
                     {(roles?.data || []).map((role: any) => (
                         <MenuItem key={role.id} value={role.id}>{role.name}</MenuItem>
@@ -171,7 +167,7 @@ const StaffPage = ({ key = "members" }) => {
                         ))}
                     </Select>
                 </FormControl>
-                <Button variant="contained" startIcon={<AddIcon />} onClick={() => { setOpen(true); setForm({ name: "", email: "", password: "", roleId: 0 }); setId(null); }}>Add Staff</Button>
+                <Button variant="contained" startIcon={<AddIcon />} onClick={() => { setOpen(true); setForm({ name: "", email: "", roleId: 0 }); setId(null); }}>Add Staff</Button>
             </Box>
             <GenericTable
                 data={(list as any)?.data?.map((d: any) => {
