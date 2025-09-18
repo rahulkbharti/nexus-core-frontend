@@ -6,15 +6,36 @@ import { Formik } from "formik";
 import FormInput from "../../common/FormInput";
 import { Typography } from "@mui/material";
 import { Link as L } from "react-router-dom";
+import axios from "axios";
+
 
 const ForgetPassword = () => {
     const [activeStep, setActiveStep] = useState(0);
+    const [otpId, setOTPId] = useState(null);
     const steps = ["Send OTP", "Verify OTP"]
-    const handleOTPSend = async (_values: any) => {
-        setActiveStep(1);
+    const handleOTPSend = async (values: any) => {
+        const responce = await axios.post("http://localhost:3000/api/auth/send-otp", { email: values.email });
+        if (responce.status === 200) {
+            setOTPId((responce.data as any)?.otpId);
+            setActiveStep(1);
+        } else {
+            alert("Somthing Error")
+        }
+
     }
-    const handleVerfiyOTP = async (_valys: any) => {
+    const handleVerfiyOTP = async (values: any) => {
+        const responce = await axios.post("http://localhost:3000/api/auth/verify-otp", { otpId, otp: values?.otp });
+        if (responce.status === 200) {
+            setOTPId(null);
+            setActiveStep(1);
+        } else {
+            alert("Somthing Error")
+        }
         setActiveStep(2);
+    }
+
+    const ChangePassword = async (values: any) => {
+
     }
     return (
         <AuthLayout coverImage="https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" >
@@ -52,17 +73,34 @@ const ForgetPassword = () => {
                     )}
                     {activeStep === 1 && (
                         <Box>
-                            <Formik initialValues={{ opt: "", }} onSubmit={handleVerfiyOTP}>
+                            <Formik initialValues={{ otp: "", }} onSubmit={handleVerfiyOTP}>
                                 {({ handleSubmit }) => (
                                     <form onSubmit={handleSubmit}>
-                                        <FormInput name="opt" label="OTP" placeholder="OPT..." />
+                                        <FormInput name="otp" label="OTP" placeholder="OTP..." />
                                         <Button size="small" type="submit" variant="contained" sx={{ my: 2 }} fullWidth>Verify OTP</Button>
                                     </form>
                                 )}
                             </Formik>
                         </Box>
                     )}
+
                     {activeStep === 2 && (
+                        <Box>
+                            <Formik initialValues={{ password: "", confirmPassword: "" }} onSubmit={ChangePassword}>
+                                {({ handleSubmit }) => (
+                                    <form onSubmit={handleSubmit}>
+                                        <FormInput name="password" label="Password" type="password" placeholder="password..." />
+                                        <FormInput name="confirmPassword" label="Confirm Password" type="password" placeholder="Confirm Password..." />
+                                        <Button size="small" type="submit" variant="contained" sx={{ my: 2 }} fullWidth>Change Password</Button>
+                                    </form>
+                                )}
+                            </Formik>
+                        </Box>
+                    )}
+
+
+
+                    {activeStep === 3 && (
                         <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center">
                             <svg width="100" height="100" viewBox="0 0 24 24" fill="none">
                                 <circle cx="12" cy="12" r="10" fill="#4caf50" />
