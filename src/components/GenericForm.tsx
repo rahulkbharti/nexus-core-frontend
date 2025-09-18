@@ -6,7 +6,7 @@ import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/
 interface FormProps {
     open: boolean;
     setOpen: (open: boolean) => void;
-    initialValue: { name: string };
+    initialValue: { name?: string, [key: string]: any };
     onSubmit: (values: any) => void;
     id?: number | null;
     children?: React.ReactNode;

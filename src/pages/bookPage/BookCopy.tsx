@@ -3,11 +3,11 @@ import type { GenericColumn } from "../../components/GenericTable";
 import api from "../../apis/api";
 import { useState } from "react";
 import GenericTable from "../../components/GenericTable";
-import { Box, Button, Pagination, Stack, Typography } from "@mui/material";
+import { Box, Button, Pagination, Stack } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 import FormInput from "../common/FormInput";
 import GenericForm from "../../components/GenericForm";
-import { Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 
 const padStart = (value: any) => value?.toString().padStart(3, "0");
@@ -17,44 +17,24 @@ const columns: GenericColumn[] = [
         label: 'ID',
         renderCell: padStart
     }, {
-        id: 'title',
-        label: 'Title',
+        id: 'barcode',
+        label: 'Barcode',
     },
     {
-        id: 'author',
-        label: 'Author',
+        id: 'location',
+        label: 'Location',
     },
     {
-        id: 'publisher',
-        label: 'Publisher',
+        id: "condition",
+        label: "Condition"
     }, {
-        id: "genre",
-        label: "Genre"
-    }, {
-        id: "publicationDate",
-        label: "Publication Date",
-        renderCell: (value) => new Date(value).toLocaleDateString()
-    },
-    {
-        id: "copies",
-        label: "Copies",
-        // You can access the whole row by adding a second argument to renderCell
-        renderCell: (value: any[], row?: any) => {
-            // console.log("copies", value, row);
-            const availableCount = value.filter(v => v.status === "AVAILABLE").length;
-            const totalCount = value.length;
-            const bookId = row?.id || "";
-            return (
-                <>
-                    {`${availableCount} / ${totalCount} Available `}
-
-                </>
-            );
-        }
+        id: "status",
+        label: "Status",
     }
-
 ]
-const BookManagement = ({ key = "books" }) => {
+const BookCopy = ({ key = "copies" }) => {
+    const { bookId } = useParams();
+    // console.log("bookId", bookId);
     const queryClient = useQueryClient();
     const [open, setOpen] = useState(false);
     const [id, setId] = useState<number | null>(null);
@@ -73,7 +53,7 @@ const BookManagement = ({ key = "books" }) => {
         queryFn: async ({ queryKey }) => {
             const [_, filter] = queryKey;
             // console.log("Fetching data with filter:", filter);
-            const data = (await api.get("/books", { params: { ...(typeof filter === "object" && filter !== null ? filter : {}) } }) as any).data;
+            const data = (await api.get(`/books/${bookId}/copies`, { params: { ...(typeof filter === "object" && filter !== null ? filter : {}) } }) as any).data;
             // console.log("list", data);
             return data;
         }
@@ -82,13 +62,13 @@ const BookManagement = ({ key = "books" }) => {
         mutationFn: async ({ method, data, id }: { method: "POST" | "PUT" | "DELETE"; data?: any, id?: string | number }) => {
             // console.log("Mutating Data ", method, data);
             if (method === "POST") {
-                const _data = await api.post("/books", data);
+                const _data = await api.post(`/books/${bookId}/copies`, data);
                 return _data.data;
             } else if (method === "PUT") {
-                const _data = await api.put("/books/" + id, data);
+                const _data = await api.put(`/books/${bookId}/copies/${id}`, data);
                 return _data.data;
             } else if (method === "DELETE") {
-                const _data = await api.delete("/books/" + id);
+                const _data = await api.delete(`/books/${bookId}/copies/${id}`);
                 return _data.data;
             }
             return { message: "provide an appropriate method" };
@@ -139,7 +119,7 @@ const BookManagement = ({ key = "books" }) => {
             mutate(data);
         }
     }
-    // console.log("list", list);
+    console.log("list", list);
     return (
         <>
             <GenericForm open={open} setOpen={setOpen} initialValue={form} onSubmit={handleSubmit} id={id}>
@@ -153,7 +133,7 @@ const BookManagement = ({ key = "books" }) => {
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
                 <Button variant="contained" startIcon={<AddIcon />} onClick={() => { setOpen(true); setForm({ title: "324", author: "234", publisher: "2342", genre: "23423", publicationDate: "", ISBN: "" }); setId(null); }}>Add Book</Button>
             </Box>
-            <GenericTable data={list?.books || []} columns={columns} handleSort={() => { }} handleEdit={handleActions} keyField="sn" />
+            <GenericTable data={list?.data || []} columns={columns} handleSort={() => { }} handleEdit={handleActions} keyField="sn" />
             {(list as any)?.totalPages > 1 && (
                 <Stack sx={{ width: "100%", alignItems: "center", justifyContent: "center" }}>
                     <Pagination count={(list as any).totalPages} showFirstButton showLastButton onChange={(_e, page) => { setFilter({ ...filter, page }) }} />
@@ -163,4 +143,4 @@ const BookManagement = ({ key = "books" }) => {
     )
 }
 
-export default BookManagement;
+export default BookCopy;

@@ -105,6 +105,7 @@ const MemberPage = ({ key = "members" }) => {
     }
     // Handle Edit, Delete, View Actions
     const handleActions = (method: "EDIT" | "DELETE" | "VIEW", values: { [key: string]: any }, id: number) => {
+
         if (method === "EDIT") {
             setForm({
                 name: values.name ?? "",

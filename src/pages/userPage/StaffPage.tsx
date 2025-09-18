@@ -73,7 +73,6 @@ const StaffPage = ({ key = "members" }) => {
             const data = (await api.get("/auth/role") as any).data;
             return data;
         },
-        staleTime: Infinity
     })
     // For Mutating The Data (Create, Update, Delete)
     const { mutate: mutate } = useMutation({

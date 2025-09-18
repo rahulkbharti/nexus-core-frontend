@@ -2,7 +2,7 @@ import Stack from '@mui/material/Stack';
 import NotificationsRoundedIcon from '@mui/icons-material/NotificationsRounded';
 import MenuButton from '../../components/MenuButton';
 import NavbarBreadcrumbs from '../../components/NavbarBreadcrumbs';
-import Search from '../../components/Search';
+// import Search from '../../components/Search';
 import { IconButton } from '@mui/material';
 import { useTheme as ThemeContext } from "../../theme/ThemeProvider";
 import LightModeIcon from "@mui/icons-material/LightMode";
@@ -25,7 +25,7 @@ export default function Header() {
         >
             <NavbarBreadcrumbs />
             <Stack direction="row" sx={{ gap: 1 }}>
-                <Search />
+                {/* <Search /> */}
                 {/* <CustomDatePicker /> */}
                 <MenuButton showBadge aria-label="Open notifications">
                     <NotificationsRoundedIcon />

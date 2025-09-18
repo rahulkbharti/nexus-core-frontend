@@ -3,18 +3,17 @@ import type { GenericColumn } from "../../components/GenericTable";
 import api from "../../apis/api";
 import { useState } from "react";
 import GenericTable from "../../components/GenericTable";
-import { Box, Button, Pagination, Stack, Typography } from "@mui/material";
+import { Box, Button, Pagination, Stack } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 import FormInput from "../common/FormInput";
 import GenericForm from "../../components/GenericForm";
-import { Link } from "react-router-dom";
 
 
 const padStart = (value: any) => value?.toString().padStart(3, "0");
 const columns: GenericColumn[] = [
     {
-        id: 'id',
-        label: 'ID',
+        id: 'ISBN',
+        label: 'ISBN',
         renderCell: padStart
     }, {
         id: 'title',
@@ -34,27 +33,9 @@ const columns: GenericColumn[] = [
         id: "publicationDate",
         label: "Publication Date",
         renderCell: (value) => new Date(value).toLocaleDateString()
-    },
-    {
-        id: "copies",
-        label: "Copies",
-        // You can access the whole row by adding a second argument to renderCell
-        renderCell: (value: any[], row?: any) => {
-            // console.log("copies", value, row);
-            const availableCount = value.filter(v => v.status === "AVAILABLE").length;
-            const totalCount = value.length;
-            const bookId = row?.id || "";
-            return (
-                <>
-                    {`${availableCount} / ${totalCount} Available `}
-
-                </>
-            );
-        }
     }
-
 ]
-const BookManagement = ({ key = "books" }) => {
+const BookReservation = ({ key = "books" }) => {
     const queryClient = useQueryClient();
     const [open, setOpen] = useState(false);
     const [id, setId] = useState<number | null>(null);
@@ -163,4 +144,4 @@ const BookManagement = ({ key = "books" }) => {
     )
 }
 
-export default BookManagement;
+export default BookReservation;
