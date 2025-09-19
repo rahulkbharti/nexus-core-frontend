@@ -100,7 +100,7 @@ const SeatManagementSystem: React.FC = () => {
     // console.log(halls)
     return (
         <Box >
-            <Typography variant="h4" component="h1" gutterBottom sx={{
+            {/* <Typography variant="h4" component="h1" gutterBottom sx={{
                 display: 'flex',
                 alignItems: 'center',
                 fontWeight: 'bold',
@@ -108,7 +108,7 @@ const SeatManagementSystem: React.FC = () => {
             }}>
                 <ChairIcon sx={{ mr: 2, fontSize: '2.5rem' }} />
                 Library Seat Management
-            </Typography>
+            </Typography> */}
 
 
             {/* Hall Form */}

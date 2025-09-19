@@ -12,6 +12,8 @@ import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
 import MenuButton from '../../components/MenuButton';
 import api from '../../apis/api';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { logout, type AuthState } from '../../store/features/authSlice';
 // import { useSelector } from 'react-redux';
 // import type { AuthState } from '../../store/features/authSlice';
 
@@ -21,7 +23,9 @@ const MenuItem = styled(MuiMenuItem)({
 });
 
 export default function OptionsMenu() {
-  // const authData = useSelector((state: AuthState) => state.loginData);
+  const authData = useSelector((state: { auth: AuthState }) => state?.auth);
+  const dispatch = useDispatch();
+  // console.log(authData)
   const navigate = useNavigate()
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -31,16 +35,22 @@ export default function OptionsMenu() {
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+
   const handleLogout = async () => {
-    const data = JSON.parse(localStorage.getItem("login_data") || "{}");
+    const data = authData?.loginData;
     const responce = await api.post("/auth/logout", {
-      accessToken: data.accessToken,
-      refreshToken: data.refreshToken,
+      accessToken: data?.accessToken,
+      refreshToken: data?.refreshToken,
     });
     if (responce.status === 200) {
-      navigate("/login")
+      dispatch(logout());
+      navigate("/login");
     }
-
+  }
+  // console.log("authData", authData);
+  if (!authData) {
+    navigate("/login");
   }
   return (
     <React.Fragment>

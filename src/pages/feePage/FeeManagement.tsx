@@ -17,14 +17,12 @@ import {
     DialogActions,
     TextField,
     MenuItem,
-    Grid,
+    // Grid,
     IconButton,
     Avatar,
     Divider,
-    Card,
-    CardContent,
-    Tab,
-    Tabs,
+    // Card,
+    // CardContent,
     Alert,
     Snackbar,
     FormControl,
@@ -39,8 +37,8 @@ import {
     Delete as DeleteIcon,
     Payment as PaymentIcon,
     AccountCircle as MemberIcon,
-    Receipt as ReceiptIcon,
-    AttachMoney as MoneyIcon,
+    // Receipt as ReceiptIcon,
+    // AttachMoney as MoneyIcon,
     Search as SearchIcon
 } from '@mui/icons-material';
 
@@ -218,12 +216,12 @@ const FeesManagementSystem: React.FC = () => {
     const [fees, setFees] = useState<Fee[]>(initialFees);
     const [members, setMembers] = useState<Member[]>(initialMembers);
     const [selectedFee, setSelectedFee] = useState<Fee | null>(null);
-    const [selectedMember, setSelectedMember] = useState<Member | null>(null);
+    // const [selectedMember, setSelectedMember] = useState<Member | null>(null);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
-    const [memberDialogOpen, setMemberDialogOpen] = useState(false);
+    // const [memberDialogOpen, setMemberDialogOpen] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-    const [tabValue, setTabValue] = useState(0);
+    // const [_tabValue, setTabValue] = useState(0);
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' });
     const [newFee, setNewFee] = useState<Partial<Fee>>({
         type: 'late',
@@ -242,9 +240,9 @@ const FeesManagementSystem: React.FC = () => {
         setSnackbar({ open: true, message, severity });
     };
 
-    const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-        setTabValue(newValue);
-    };
+    // const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    //     setTabValue(newValue);
+    // };
 
     const handleOpenFeeDialog = (fee?: Fee) => {
         if (fee) {
@@ -434,24 +432,14 @@ const FeesManagementSystem: React.FC = () => {
         fee.description.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const totalPendingFees = fees.filter(f => f.status !== 'paid').reduce((sum, fee) => sum + fee.balance, 0);
-    const totalPaid = fees.reduce((sum, fee) => sum + (fee.amount - fee.balance), 0);
-    const overdueFees = fees.filter(f => f.status === 'overdue').reduce((sum, fee) => sum + fee.balance, 0);
+    // const totalPendingFees = fees.filter(f => f.status !== 'paid').reduce((sum, fee) => sum + fee.balance, 0);
+    // const totalPaid = fees.reduce((sum, fee) => sum + (fee.amount - fee.balance), 0);
+    // const overdueFees = fees.filter(f => f.status === 'overdue').reduce((sum, fee) => sum + fee.balance, 0);
 
     return (
         <Box sx={{ minHeight: '100vh' }}>
-            <Typography variant="h4" component="h1" gutterBottom sx={{
-                display: 'flex',
-                alignItems: 'center',
-                fontWeight: 'bold',
-                mb: 3
-            }}>
-                <MoneyIcon sx={{ mr: 2, fontSize: '2.5rem' }} />
-                Library Fees Management
-            </Typography>
-
             {/* Summary Cards */}
-            <Grid container spacing={3} sx={{ mb: 3 }}>
+            {/* <Grid container spacing={3} sx={{ mb: 3 }}>
                 <Grid item xs={12} sm={6} md={3}>
                     <Card>
                         <CardContent>
@@ -500,7 +488,7 @@ const FeesManagementSystem: React.FC = () => {
                         </CardContent>
                     </Card>
                 </Grid>
-            </Grid>
+            </Grid> */}
 
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
                 <TextField

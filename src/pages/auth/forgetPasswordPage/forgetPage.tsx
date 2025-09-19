@@ -12,11 +12,16 @@ import axios from "axios";
 const ForgetPassword = () => {
     const [activeStep, setActiveStep] = useState(0);
     const [otpId, setOTPId] = useState(null);
-    const steps = ["Send OTP", "Verify OTP"]
+    const [resetToken, setResetToken] = useState(null);
+
+    const steps = ["Send OTP", "Verify OTP", "Change Password"];
     const handleOTPSend = async (values: any) => {
+        // console.log(values)
         const responce = await axios.post("http://localhost:3000/api/auth/send-otp", { email: values.email });
         if (responce.status === 200) {
-            setOTPId((responce.data as any)?.otpId);
+            const otpId = (responce.data as any)?.otpId;
+            setOTPId(otpId);
+            // console.log(otpId);
             setActiveStep(1);
         } else {
             alert("Somthing Error")
@@ -24,18 +29,36 @@ const ForgetPassword = () => {
 
     }
     const handleVerfiyOTP = async (values: any) => {
+        // console.log(values)
         const responce = await axios.post("http://localhost:3000/api/auth/verify-otp", { otpId, otp: values?.otp });
         if (responce.status === 200) {
+            const refreshToken = (responce.data as any)?.resetToken;
+            setResetToken(refreshToken);
+            // console.log(refreshToken);
             setOTPId(null);
-            setActiveStep(1);
+            setActiveStep(2);
         } else {
             alert("Somthing Error")
         }
-        setActiveStep(2);
     }
 
-    const ChangePassword = async (values: any) => {
-
+    const handleResetPassword = async (values: any) => {
+        // console.log(values)
+        if (values?.password !== values?.confirmPassword) {
+            alert("Password and Confirm Password not match");
+            return;
+        } else if (values?.password.length < 6) {
+            alert("Password must be at least 6 characters long");
+            return;
+        }
+        const responce = await axios.post("http://localhost:3000/api/auth/reset-password", { resetToken, new_password: values?.password });
+        if (responce.status === 200) {
+            // console.log(responce.data);
+            setResetToken(null);
+            setActiveStep(3);
+        } else {
+            alert("Somthing Error")
+        }
     }
     return (
         <AuthLayout coverImage="https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" >
@@ -46,12 +69,14 @@ const ForgetPassword = () => {
                 <Typography variant="subtitle1" color="textSecondary" mb={2} textAlign="center">
                     Enter your email to receive a password reset OTP.
                 </Typography>
-                {activeStep !== 2 && (
+                {activeStep !== 3 && (
                     <Stepper nonLinear activeStep={activeStep}>
-                        {steps.map((label, index) => (
+                        {steps.map((label) => (
                             <Step key={label}>
-                                <StepButton color="inherit" onClick={() => setActiveStep(index)}>
-                                    {label}
+                                <StepButton color="inherit">
+                                    <Typography variant="caption" display="block" gutterBottom>
+                                        {label}
+                                    </Typography>
                                 </StepButton>
                             </Step>
                         ))}
@@ -86,7 +111,7 @@ const ForgetPassword = () => {
 
                     {activeStep === 2 && (
                         <Box>
-                            <Formik initialValues={{ password: "", confirmPassword: "" }} onSubmit={ChangePassword}>
+                            <Formik initialValues={{ password: "", confirmPassword: "" }} onSubmit={handleResetPassword}>
                                 {({ handleSubmit }) => (
                                     <form onSubmit={handleSubmit}>
                                         <FormInput name="password" label="Password" type="password" placeholder="password..." />
@@ -125,22 +150,24 @@ const ForgetPassword = () => {
                         </Box>
                     )}
                 </Box>
-                {activeStep !== 2 && (
+
+                {activeStep !== 3 && (
                     <>
                         <Divider sx={{ my: 2.5 }} />
                         <Typography sx={{ textAlign: 'center', my: 2 }}>
-                            Already have an account?{' '}
+                            Go to login Page
                             <Link
                                 component={L}
                                 to="/login"
                                 variant="body2"
-                                sx={{ alignSelf: 'center' }}
+                                sx={{ alignSelf: 'center', mx: 1 }}
                             >
                                 Login
                             </Link>
-                        </Typography>
-                    </>
+                        </Typography></>
                 )}
+
+
 
             </Box>
         </AuthLayout>

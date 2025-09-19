@@ -3,11 +3,10 @@ import type { GenericColumn } from "../../components/GenericTable";
 import api from "../../apis/api";
 import { useState } from "react";
 import GenericTable from "../../components/GenericTable";
-import { Box, Button, Pagination, Stack, Typography } from "@mui/material";
+import { Box, Button, Pagination, Stack } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 import FormInput from "../common/FormInput";
 import GenericForm from "../../components/GenericForm";
-import { Link } from "react-router-dom";
 
 
 const padStart = (value: any) => value?.toString().padStart(3, "0");
@@ -39,11 +38,10 @@ const columns: GenericColumn[] = [
         id: "copies",
         label: "Copies",
         // You can access the whole row by adding a second argument to renderCell
-        renderCell: (value: any[], row?: any) => {
+        renderCell: (value: any[]) => {
             // console.log("copies", value, row);
             const availableCount = value.filter(v => v.status === "AVAILABLE").length;
             const totalCount = value.length;
-            const bookId = row?.id || "";
             return (
                 <>
                     {`${availableCount} / ${totalCount} Available `}

@@ -7,20 +7,19 @@ import {
     InputLabel,
     Select,
     MenuItem,
-    Button
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import AddIcon from "@mui/icons-material/Add";
+
 
 const TableHeader = ({ children }: { children: React.ReactNode }) => {
     const [searchTerm, setSearchTerm] = useState("");
     // Uncomment and use if you want to control the select value
     // const [filterStatus, setFilterStatus] = useState("all");
 
-    const handleOpenFeeDialog = () => {
-        // Implement dialog open logic here
-        alert("Open Fee Dialog");
-    };
+    // const handleOpenFeeDialog = () => {
+    //     // Implement dialog open logic here
+    //     alert("Open Fee Dialog");
+    // };
 
     return (
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>

@@ -72,27 +72,27 @@ api.interceptors.response.use(
 export default api;
 
 // Remove or rename this function to avoid conflict with the imported login action creator
-const loginRequest = async () => {
-  console.log("Making login request...");
+// const loginRequest = async () => {
+//   console.log("Making login request...");
 
-  const response = await axios.post<{
-    accessToken: string;
-    refreshToken: string;
-  }>("http://localhost:5000/api/auth/login", {
-    email: "admin@gmail.com",
-    password: "123457",
-  });
-  console.log("Login response:", response.data);
-  const { accessToken, refreshToken } = (response.data as any).tokenObj;
-  // console.log(accessToken);
-  localStorage.setItem(
-    "login_data",
-    JSON.stringify({
-      accessToken,
-      refreshToken,
-      exp: Date.now() + 15 * 60 * 1000,
-    })
-  );
-};
+//   const response = await axios.post<{
+//     accessToken: string;
+//     refreshToken: string;
+//   }>("http://localhost:5000/api/auth/login", {
+//     email: "admin@gmail.com",
+//     password: "123457",
+//   });
+//   console.log("Login response:", response.data);
+//   const { accessToken, refreshToken } = (response.data as any).tokenObj;
+//   // console.log(accessToken);
+//   localStorage.setItem(
+//     "login_data",
+//     JSON.stringify({
+//       accessToken,
+//       refreshToken,
+//       exp: Date.now() + 15 * 60 * 1000,
+//     })
+//   );
+// };
 
-(window as any).loginRequest = loginRequest;
+// (window as any).loginRequest = loginRequest;
