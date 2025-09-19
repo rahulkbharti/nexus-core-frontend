@@ -6,6 +6,7 @@ import FormInput from "../../common/FormInput";
 import { Typography } from "@mui/material";
 import { Link as L } from "react-router-dom";
 import axios from "axios";
+import { showNotification } from "../../../utils/notification";
 
 
 
@@ -21,8 +22,9 @@ const RegisterPage = () => {
             if (responce.status === 200) {
                 const otpId = (responce.data as any)?.otpId;
                 setOTPId(otpId);
+                showNotification('OTP sent to your email!', 'success');
             } else {
-                alert("Somthing Error")
+                showNotification('Failed to send OTP. Please try again.', 'error');
             }
         } else {
             const responce = await axios.post("http://localhost:3000/api/auth/admin/verify-otp", { otpId, otp: values.otp });
@@ -83,10 +85,10 @@ const RegisterPage = () => {
                                 {({ handleSubmit }) => (
                                     <form onSubmit={handleSubmit}>
                                         <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
-                                            <FormInput disabled={!!otpId} name="email" label="Email" placeholder="Your Email" />
+                                            <FormInput disabled={!!otpId} name="email" label="Email" placeholder="Your Email" required />
                                             <Button disabled={!!otpId} size="small" type="submit" variant="contained" sx={{ width: "150px" }} >Send OTP</Button>
                                         </Stack>
-                                        <FormInput disabled={!otpId} name="otp" label="OTP" placeholder="OTP..." />
+                                        <FormInput disabled={!otpId} name="otp" label="OTP" placeholder="OTP..." required />
                                         <Button disabled={!otpId} size="small" type="submit" variant="contained" sx={{ my: 2 }} fullWidth>Continue</Button>
                                     </form>
                                 )}

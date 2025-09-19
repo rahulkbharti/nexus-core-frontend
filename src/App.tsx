@@ -14,6 +14,7 @@ import { PersistGate } from "redux-persist/integration/react";
 import BookPage from "./pages/bookPage/BookPage";
 import BookCopy from "./pages/bookPage/BookCopy";
 import SeatManagementSystem from "./pages/seatpage/SeatManagementSystem";
+import NotificationManager from "./components/NotificationManager";
 
 const App = () => {
   return (
@@ -37,6 +38,7 @@ const App = () => {
               <Route path="*" element={<Exp />} />
             </Routes>
           </BrowserRouter>
+          <NotificationManager />
         </ThemeProvider>
       </PersistGate>
     </Provider>

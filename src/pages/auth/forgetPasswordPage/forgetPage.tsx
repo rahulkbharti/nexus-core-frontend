@@ -86,7 +86,7 @@ const ForgetPassword = () => {
                 <Box mt={4}>
                     {activeStep === 0 && (
                         <Box>
-                            <Formik initialValues={{ email: "admin1@gmail.com", }} onSubmit={handleOTPSend}>
+                            <Formik initialValues={{ email: "" }} onSubmit={handleOTPSend}>
                                 {({ handleSubmit }) => (
                                     <form onSubmit={handleSubmit}>
                                         <FormInput name="email" label="Email" placeholder="Your Email" />
@@ -98,7 +98,7 @@ const ForgetPassword = () => {
                     )}
                     {activeStep === 1 && (
                         <Box>
-                            <Formik initialValues={{ otp: "", }} onSubmit={handleVerfiyOTP}>
+                            <Formik initialValues={{ otp: "" }} onSubmit={handleVerfiyOTP}>
                                 {({ handleSubmit }) => (
                                     <form onSubmit={handleSubmit}>
                                         <FormInput name="otp" label="OTP" placeholder="OTP..." />

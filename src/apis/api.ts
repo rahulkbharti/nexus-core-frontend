@@ -1,6 +1,7 @@
 import axios from "axios";
 import store from "../store/store";
 import { logout, login, type LoginData } from "../store/features/authSlice";
+import { showNotification } from "../utils/notification";
 // import { AxiosRequestConfig } from "axios";
 
 // --- Configuration ---
@@ -61,10 +62,12 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    showNotification("Something went wrong!", "error");
     console.error("API Error:", error);
-    if (error.status === 401) {
+    if (error.response && error.response.status === 401) {
       // window.location.href = "/login";
     }
+
     return Promise.reject(error);
   }
 );
