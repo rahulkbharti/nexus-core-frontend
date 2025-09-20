@@ -8,7 +8,7 @@ import { Link as L } from "react-router-dom";
 import axios from "axios";
 import { showNotification } from "../../../utils/notification";
 
-
+const AUTH_URL = import.meta.env.VITE_API_URL;
 
 const RegisterPage = () => {
     const [activeStep, setActiveStep] = useState(0);
@@ -18,7 +18,7 @@ const RegisterPage = () => {
     const steps = ["Verify Email", "Owner Info", "Organization Info"];
     const handleEmailVerfication = async (values: any) => {
         if (!otpId) {
-            const responce = await axios.post("http://localhost:3000/api/auth/admin/verify-email", { email: values.email });
+            const responce = await axios.post(`${AUTH_URL}/auth/admin/verify-email`, { email: values.email });
             if (responce.status === 200) {
                 const otpId = (responce.data as any)?.otpId;
                 setOTPId(otpId);
@@ -27,7 +27,7 @@ const RegisterPage = () => {
                 showNotification('Failed to send OTP. Please try again.', 'error');
             }
         } else {
-            const responce = await axios.post("http://localhost:3000/api/auth/admin/verify-otp", { otpId, otp: values.otp });
+            const responce = await axios.post(`${AUTH_URL}/auth/admin/verify-otp`, { otpId, otp: values.otp });
             if (responce.status === 200) {
                 const data = (responce.data as any);
                 setToken(data?.token);
@@ -45,7 +45,7 @@ const RegisterPage = () => {
             alert("Password and Confirm Password must be same")
             return;
         }
-        const responce = await axios.post("http://localhost:3000/api/auth/admin/register", { token, email, ...values });
+        const responce = await axios.post(`${AUTH_URL}/auth/admin/register`, { token, email, ...values });
         if (responce.status === 201) {
             setToken(null);
             setActiveStep(3);

@@ -10,6 +10,9 @@ import { useDispatch } from "react-redux";
 import { Link as L } from "react-router-dom";
 import { useGoogleLogin, type TokenResponse } from "@react-oauth/google";
 
+
+const AUTH_URL = import.meta.env.VITE_API_URL;
+
 interface LoginResponse {
     tokenObj: {
         accessToken: string;
@@ -32,7 +35,7 @@ const LoginPage = () => {
     const navigate = useNavigate();
     const handleLogin = async (values: any) => {
         // console.log(values)
-        const response = await axios.post<LoginResponse>("http://localhost:3000/api/auth/login", values);
+        const response = await axios.post<LoginResponse>(`${AUTH_URL}/auth/login`, values);
         if (response.status === 200) {
             const data = response.data.tokenObj
             const loginData: LoginData = {
@@ -57,7 +60,7 @@ const LoginPage = () => {
         onSuccess: async (tokenResponse: Omit<TokenResponse, "error" | "error_description" | "error_uri">) => {
             // console.log('Google Token Response:', tokenResponse);
             try {
-                const response = await axios.post<LoginResponse>(`http://localhost:3000/api/auth/google-login`, {
+                const response = await axios.post<LoginResponse>(`${AUTH_URL}/auth/google-login`, {
                     access_token: tokenResponse.access_token,
                 });
 

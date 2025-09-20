@@ -5,7 +5,7 @@ import { showNotification } from "../utils/notification";
 // import { AxiosRequestConfig } from "axios";
 
 // --- Configuration ---
-const AUTH_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+const AUTH_URL = import.meta.env.VITE_API_URL;
 
 const api = axios.create({
   baseURL: AUTH_URL,

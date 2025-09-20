@@ -8,6 +8,7 @@ import { Typography } from "@mui/material";
 import { Link as L } from "react-router-dom";
 import axios from "axios";
 
+const AUTH_URL = import.meta.env.VITE_API_URL;
 
 const ForgetPassword = () => {
     const [activeStep, setActiveStep] = useState(0);
@@ -17,7 +18,7 @@ const ForgetPassword = () => {
     const steps = ["Send OTP", "Verify OTP", "Change Password"];
     const handleOTPSend = async (values: any) => {
         // console.log(values)
-        const responce = await axios.post("http://localhost:3000/api/auth/send-otp", { email: values.email });
+        const responce = await axios.post(`${AUTH_URL}/auth/send-otp`, { email: values.email });
         if (responce.status === 200) {
             const otpId = (responce.data as any)?.otpId;
             setOTPId(otpId);
@@ -30,7 +31,7 @@ const ForgetPassword = () => {
     }
     const handleVerfiyOTP = async (values: any) => {
         // console.log(values)
-        const responce = await axios.post("http://localhost:3000/api/auth/verify-otp", { otpId, otp: values?.otp });
+        const responce = await axios.post(`${AUTH_URL}/auth/verify-otp`, { otpId, otp: values?.otp });
         if (responce.status === 200) {
             const refreshToken = (responce.data as any)?.resetToken;
             setResetToken(refreshToken);
@@ -51,7 +52,7 @@ const ForgetPassword = () => {
             alert("Password must be at least 6 characters long");
             return;
         }
-        const responce = await axios.post("http://localhost:3000/api/auth/reset-password", { resetToken, new_password: values?.password });
+        const responce = await axios.post(`${AUTH_URL}/auth/reset-password`, { resetToken, new_password: values?.password });
         if (responce.status === 200) {
             // console.log(responce.data);
             setResetToken(null);
