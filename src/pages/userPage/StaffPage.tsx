@@ -1,4 +1,4 @@
-import { Box, Button, FormControl, InputLabel, MenuItem, Pagination, Select, Stack, Typography } from "@mui/material";
+import { Box, Button, FormControl, InputLabel, LinearProgress, MenuItem, Pagination, Select, Stack, Typography } from "@mui/material";
 import GenericTable, { type GenericColumn } from "../../components/GenericTable";
 import AddIcon from '@mui/icons-material/Add';
 import { useState } from "react";
@@ -25,6 +25,10 @@ const columns: GenericColumn[] = [
         label: "Email"
     },
     {
+        id: "role",
+        label: "Role"
+    },
+    {
         id: "updatedAt",
         label: "Updated At",
         renderCell: (value: any) => new Date(value).toLocaleString()
@@ -47,15 +51,26 @@ const StaffPage = ({ key = "members" }) => {
     const queryClient = useQueryClient();
     const [open, setOpen] = useState(false);
     const [id, setId] = useState<number | null>(null);
-    const [form, setForm] = useState({
+    type Permission = {
+        id: number;
+        name: string;
+        desc: string;
+    };
+
+    const [form, setForm] = useState<{
+        name: string;
+        email: string;
+        roleId: number;
+        permissions: Permission[];
+    }>({
         name: "",
         email: "",
         roleId: 0,
-
+        permissions: []
     })
     const [filter, setFilter] = useState<filters>({ page: 1, limit: 3, role: 0 });
     // For Fetching The List
-    const { data: list } = useQuery({
+    const { data: list, isLoading, isFetching } = useQuery({
         queryKey: [key, filter],
         queryFn: async ({ queryKey }) => {
             const [_, filter] = queryKey;
@@ -77,6 +92,7 @@ const StaffPage = ({ key = "members" }) => {
     const { mutate: mutate } = useMutation({
         mutationFn: async ({ method, data, id }: { method: "POST" | "PUT" | "DELETE"; data?: any, id?: string | number }) => {
             // console.log("Mutating Data ", method, data);
+            // return;
             if (method === "POST") {
                 const _data = await api.post("/auth/staff/register", data);
                 return _data.data;
@@ -102,24 +118,31 @@ const StaffPage = ({ key = "members" }) => {
     // Handle Submut of the Form
     const handleSubmit = (info: any) => {
         // console.log("Submitting Form", info);
+        // return;
+        const body = { ...info }
+        body.data.permissions = form.permissions;
+
+        // console.log("INFO", info);
+        // return;
         if (id) {
-            mutate(info);
+            mutate(body);
         } else {
-            mutate(info);
+            mutate(body);
         }
         setOpen(false);
-        setForm({ name: "", email: "", roleId: 0 });
+        setForm({ name: "", email: "", roleId: 0, permissions: [] });
         setId(null);
     }
     // Handle Edit, Delete, View Actions
     const handleActions = (method: "EDIT" | "DELETE" | "VIEW", values: { [key: string]: any }, id: number) => {
-        console.log("Actionsss", method, values, id);
+        // console.log("Actionsss", method, values, id);
 
         if (method === "EDIT") {
             setForm({
                 name: values.name ?? "",
                 email: values.email ?? "",
-                roleId: values.roleId ?? 0
+                roleId: values.roleId ?? 0,
+                permissions: values.permissions ?? []
             });
             setId(id);
             setOpen(true);
@@ -130,14 +153,15 @@ const StaffPage = ({ key = "members" }) => {
             setForm({
                 name: values.name ?? "",
                 email: values.email ?? "",
-                roleId: values.roleId ?? 0
+                roleId: values.roleId ?? 0,
+                permissions: values.permissions ?? []
             });
             setId(id);
             setOpen(true);
         }
     }
-
     // console.log(list)
+    // console.log(form.permissions)
     return (
         <Box>
             <GenericForm open={open} setOpen={setOpen} initialValue={form} onSubmit={handleSubmit} id={id}>
@@ -151,7 +175,7 @@ const StaffPage = ({ key = "members" }) => {
                     ))}
                 </FormOption>
                 <Typography sx={{ mb: 2 }}>Staff Permissions :</Typography>
-                <StaffPermissions permissions={[]} setPermissions={() => { }} />
+                <StaffPermissions permissions={form.permissions} setPermissions={(permissions) => setForm({ ...form, permissions })} />
             </GenericForm>
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2, gap: 2 }}>
                 <FormControl size="small" sx={{ minWidth: 120 }}>
@@ -167,11 +191,12 @@ const StaffPage = ({ key = "members" }) => {
                         ))}
                     </Select>
                 </FormControl>
-                <Button variant="contained" startIcon={<AddIcon />} onClick={() => { setOpen(true); setForm({ name: "", email: "", roleId: 0 }); setId(null); }}>Add Staff</Button>
+                <Button variant="contained" startIcon={<AddIcon />} onClick={() => { setOpen(true); setForm({ name: "", email: "", roleId: 0, permissions: [] }); setId(null); }}>Add Staff</Button>
             </Box>
+            {(isLoading || isFetching) && <LinearProgress sx={{ mb: 1 }} />}
             <GenericTable
                 data={(list as any)?.data?.map((d: any) => {
-                    return { ...d.user, roleId: d.roleId }
+                    return { ...d?.user, role: d?.role?.name, permissions: d?.permissions, roleId: d?.roleId }
                 })}
                 columns={columns}
                 keyField="id"

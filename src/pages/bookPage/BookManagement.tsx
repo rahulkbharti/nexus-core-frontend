@@ -3,7 +3,7 @@ import type { GenericColumn } from "../../components/GenericTable";
 import api from "../../apis/api";
 import { useState } from "react";
 import GenericTable from "../../components/GenericTable";
-import { Box, Button, Pagination, Stack } from "@mui/material";
+import { Box, Button, LinearProgress, Pagination, Stack } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 import FormInput from "../common/FormInput";
 import GenericForm from "../../components/GenericForm";
@@ -66,7 +66,7 @@ const BookManagement = ({ key = "books" }) => {
     });
     const [filter, setFilter] = useState<{ [key: string]: any }>({ page: 1, limit: 4 });
 
-    const { data: list } = useQuery({
+    const { data: list, isLoading, isFetching } = useQuery({
         queryKey: [key, filter],
         queryFn: async ({ queryKey }) => {
             const [_, filter] = queryKey;
@@ -151,6 +151,7 @@ const BookManagement = ({ key = "books" }) => {
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
                 <Button variant="contained" startIcon={<AddIcon />} onClick={() => { setOpen(true); setForm({ title: "324", author: "234", publisher: "2342", genre: "23423", publicationDate: "", ISBN: "" }); setId(null); }}>Add Book</Button>
             </Box>
+            {(isLoading || isFetching) && <LinearProgress sx={{ mb: 1 }} />}
             <GenericTable data={list?.books || []} columns={columns} handleSort={() => { }} handleEdit={handleActions} keyField="sn" />
             {(list as any)?.totalPages > 1 && (
                 <Stack sx={{ width: "100%", alignItems: "center", justifyContent: "center" }}>

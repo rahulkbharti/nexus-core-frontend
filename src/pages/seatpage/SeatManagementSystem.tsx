@@ -8,6 +8,7 @@ import {
     Chip,
     Divider,
     Fab,
+    LinearProgress,
 } from '@mui/material';
 import {
     Chair as ChairIcon,
@@ -35,7 +36,7 @@ const SeatManagementSystem: React.FC = () => {
     const [seatForm, setSeatForm] = useState({ seatNumber: 'A1', seatType: 'Standard', status: 'Available' });
 
     // All Query Seat + Halls
-    const { data: halls } = useQuery({
+    const { data: halls, isLoading, isFetching } = useQuery({
         queryKey: ['halls'],
         queryFn: async () => {
             const responce = await api.get('/halls');
@@ -110,7 +111,7 @@ const SeatManagementSystem: React.FC = () => {
                 Library Seat Management
             </Typography> */}
 
-
+            {(isLoading || isFetching) && <LinearProgress sx={{ mb: 1 }} />}
             {/* Hall Form */}
             <GenericForm open={openHallForm} setOpen={setOpenHallForm} initialValue={hallForm} onSubmit={handleHallForm} id={hallId}>
                 <FormInput name="name" label="Name" type="text" required />
