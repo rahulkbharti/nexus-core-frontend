@@ -132,8 +132,8 @@ const LoginPage = () => {
                             </Typography>
 
 
-                            <FormInput name="email" label="Email" placeholder="your@email.com" />
-                            <FormInput name="password" label="Password" placeholder="Password" />
+                            <FormInput name="email" label="Email" type="email" placeholder="your@email.com" />
+                            <FormInput name="password" label="Password" type="password" placeholder="Password" />
 
                             <Button
                                 type="submit"

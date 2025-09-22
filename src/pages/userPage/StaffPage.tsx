@@ -29,11 +29,6 @@ const columns: GenericColumn[] = [
         label: "Role"
     },
     {
-        id: "updatedAt",
-        label: "Updated At",
-        renderCell: (value: any) => new Date(value).toLocaleString()
-    },
-    {
         id: "createdAt",
         label: "Created At",
         renderCell: (value: any) => new Date(value).toLocaleString()
@@ -164,6 +159,7 @@ const StaffPage = ({ key = "members" }) => {
     // console.log(form.permissions)
     return (
         <Box>
+
             <GenericForm open={open} setOpen={setOpen} initialValue={form} onSubmit={handleSubmit} id={id}>
                 <Stack direction={"row"} gap={2}>
                     <FormInput name="name" label="Name" type="text" required />

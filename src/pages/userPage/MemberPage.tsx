@@ -23,9 +23,9 @@ const columns: GenericColumn[] = [
         label: "Email"
     },
     {
-        id: "updatedAt",
-        label: "Updated At",
-        renderCell: (value: any) => new Date(value).toLocaleString()
+        id: 'isActive',
+        label: "Account Status",
+        renderCell: (value: any) => value ? "ACTIVE" : "INACTIVE"
     },
     {
         id: "createdAt",
@@ -103,7 +103,6 @@ const MemberPage = ({ key = "members" }) => {
     }
     // Handle Edit, Delete, View Actions
     const handleActions = (method: "EDIT" | "DELETE" | "VIEW", values: { [key: string]: any }, id: number) => {
-
         if (method === "EDIT") {
             setForm({
                 name: values.name ?? "",
@@ -123,7 +122,7 @@ const MemberPage = ({ key = "members" }) => {
             setOpen(true);
         }
     }
-
+    console.log(list)
     return (
         <Box>
             <GenericForm open={open} setOpen={setOpen} initialValue={form} onSubmit={handleSubmit} id={id}>

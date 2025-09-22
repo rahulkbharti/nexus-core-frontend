@@ -1,7 +1,6 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Layout from "./layout/Layout";
 import ThemeProvider from "./theme/ThemeProvider";
-import FeesManagementSystem from "./pages/feePage/FeeManagement";
 import RolePage from "./pages/rolePage/RolePage";
 import UserPage from "./pages/userPage/UserPage";
 import Exp from "./pages/experiments/Exp";
@@ -17,6 +16,8 @@ import SeatManagementSystem from "./pages/seatpage/SeatManagementSystem";
 import NotificationManager from "./components/NotificationManager";
 import ProtectedRoute from "./routes/ProtectedRoutes";
 import PublicRoutes from "./routes/PublicRoutes";
+import FeePage from "./pages/feePage/FeePage";
+import ErpFeedbackForm from "./pages/feedback/FeedbackForm";
 
 const App = () => {
   return (
@@ -34,8 +35,9 @@ const App = () => {
                 <Route path="books" element={<BookPage />} />
                 <Route path="books/:bookId" element={<BookCopy />} />
                 <Route path="authors" element={<>ss</>} />
-                <Route path="fees" element={<FeesManagementSystem />} />
+                <Route path="fees" element={<FeePage />} />
                 <Route path="seating" element={<SeatManagementSystem />} />
+                <Route path="/feedback" element={<ErpFeedbackForm />} />
               </Route>
               <Route path="*" element={<Exp />} />
             </Routes>

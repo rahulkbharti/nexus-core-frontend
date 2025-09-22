@@ -17,7 +17,7 @@ import { type AuthState } from '../../store/features/authSlice';
 
 
 // import MenuItem from '../../components/Test';
-// import CardAlert from './CardAlert';
+import CardAlert from './CardAlert';
 
 
 const drawerWidth = 240;
@@ -65,8 +65,9 @@ export default function SideMenu() {
             <Box
                 sx={{
                     display: 'flex',
-                    mt: 'calc(var(--template-frame-height, 0px) + 4px)',
-                    p: 1.5,
+                    mt: 'calc(var(--template-frame-height, 0px) + 3px)',
+                    margin: "0 auto",
+                    mb: 1
                 }}
             >
                 <SelectContent />
@@ -81,7 +82,7 @@ export default function SideMenu() {
                 }}
             >
                 <MenuContent />
-                {/* <CardAlert /> */}
+                <CardAlert />
                 {/* <NewMenu /> */}
             </Box>
 

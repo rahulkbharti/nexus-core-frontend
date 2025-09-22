@@ -9,6 +9,7 @@ import {
     Divider,
     Fab,
     LinearProgress,
+    MenuItem,
 } from '@mui/material';
 import {
     Chair as ChairIcon,
@@ -24,6 +25,7 @@ import api from '../../apis/api';
 
 import FormInput from '../common/FormInput';
 import GenericForm from '../../components/GenericForm';
+import FormOption from '../common/FormOption';
 
 const SeatManagementSystem: React.FC = () => {
     const queryClient = useQueryClient();
@@ -33,7 +35,7 @@ const SeatManagementSystem: React.FC = () => {
     // Seat Options
     const [seatId, setSeatId] = useState<number | null>(null);
     const [openSeatForm, setOpenSeatForm] = useState(false);
-    const [seatForm, setSeatForm] = useState({ seatNumber: 'A1', seatType: 'Standard', status: 'Available' });
+    const [seatForm, setSeatForm] = useState({ seatNumber: 'A1', seatType: 'STANDARD', status: 'AVAILABLE' });
 
     // All Query Seat + Halls
     const { data: halls, isLoading, isFetching } = useQuery({
@@ -100,17 +102,7 @@ const SeatManagementSystem: React.FC = () => {
 
     // console.log(halls)
     return (
-        <Box >
-            {/* <Typography variant="h4" component="h1" gutterBottom sx={{
-                display: 'flex',
-                alignItems: 'center',
-                fontWeight: 'bold',
-                mb: 3
-            }}>
-                <ChairIcon sx={{ mr: 2, fontSize: '2.5rem' }} />
-                Library Seat Management
-            </Typography> */}
-
+        <Box>
             {(isLoading || isFetching) && <LinearProgress sx={{ mb: 1 }} />}
             {/* Hall Form */}
             <GenericForm open={openHallForm} setOpen={setOpenHallForm} initialValue={hallForm} onSubmit={handleHallForm} id={hallId}>
@@ -122,8 +114,14 @@ const SeatManagementSystem: React.FC = () => {
             {/* Seat Form */}
             <GenericForm open={openSeatForm} setOpen={setOpenSeatForm} initialValue={seatForm} onSubmit={handleSeatForm} id={seatId}>
                 <FormInput name="seatNumber" label="Seat Number" type="text" required />
-                <FormInput name="seatType" label="Seat Type" type="text" required />
-                <FormInput name="status" label="Status" type="text" required />
+                <FormOption name="seatType" label="Seat Type" required>
+                    <MenuItem value="STANDARD">STANDARD</MenuItem>
+                </FormOption>
+                <FormOption name="status" label="Status" required>
+                    <MenuItem value="AVAILABLE">AVAILABLE</MenuItem>
+                    <MenuItem value="OCCUPIED">OCCUPIED</MenuItem>
+                    <MenuItem value="RESERVED">RESERVED</MenuItem>
+                </FormOption>
             </GenericForm>
 
             <Grid container spacing={3}>
@@ -184,7 +182,7 @@ const SeatManagementSystem: React.FC = () => {
                                     onClick={() => {
                                         setHallId(hall.id);
                                         setSeatId(null);
-                                        setSeatForm({ seatNumber: '', seatType: 'Standard', status: 'Available' });
+                                        setSeatForm({ seatNumber: '', seatType: 'STANDARD', status: 'AVAILABLE' });
                                         setOpenSeatForm(true);
                                     }}
                                 >
@@ -209,19 +207,19 @@ const SeatManagementSystem: React.FC = () => {
                                                     border: 1,
                                                     borderColor: 'grey.300',
                                                     borderRadius: 1,
-                                                    backgroundColor: seat.status.toLowerCase() === 'available' ? 'success.light' :
-                                                        seat.status.toLowerCase() === 'occupied' ? 'error.light' :
-                                                            seat.status.toLowerCase() === 'reserved' ? 'warning.light' :
+                                                    backgroundColor: seat.status.toUpperCase() === 'AVAILABLE' ? 'success.light' :
+                                                        seat.status.toUpperCase() === 'OCCUPIED' ? 'error.light' :
+                                                            seat.status.toUpperCase() === 'RESERVED' ? 'warning.light' :
                                                                 'grey.200',
                                                     '&:hover': {
-                                                        backgroundColor: seat.status === 'available' ? 'success.main' :
-                                                            seat.status === 'Occupied' ? 'error.main' :
-                                                                seat.status === 'Reserved' ? 'warning.main' :
+                                                        backgroundColor: seat.status.toUpperCase() === 'AVAILABLE' ? 'success.main' :
+                                                            seat.status.toUpperCase() === 'OCCUPIED' ? 'error.main' :
+                                                                seat.status.toUpperCase() === 'RESERVED' ? 'warning.main' :
                                                                     'grey.300',
                                                     },
                                                     position: 'relative'
                                                 }}
-                                                disabled={seat.status === 'Maintenance'}
+                                                disabled={seat.status.toUpperCase() === 'MAINTENANCE'}
                                             >
                                                 <IconButton
                                                     size="small"

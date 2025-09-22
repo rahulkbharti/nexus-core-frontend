@@ -7,6 +7,9 @@ import { Box, Button, LinearProgress, Pagination, Stack } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 import FormInput from "../common/FormInput";
 import GenericForm from "../../components/GenericForm";
+import GenericView from "../../components/GenericView";
+import BookCopy from "./BookCopy";
+import { showNotification } from "../../utils/notification";
 
 
 const padStart = (value: any) => value?.toString().padStart(3, "0");
@@ -54,6 +57,10 @@ const columns: GenericColumn[] = [
 ]
 const BookManagement = ({ key = "books" }) => {
     const queryClient = useQueryClient();
+    const [view, setView] = useState({
+        id: 0,
+        open: false
+    });
     const [open, setOpen] = useState(false);
     const [id, setId] = useState<number | null>(null);
     const [form, setForm] = useState({
@@ -96,12 +103,18 @@ const BookManagement = ({ key = "books" }) => {
             queryClient.invalidateQueries({ queryKey: [key] })
         },
         onError: (e) => {
-            console.log(e)
+            if ((e as any)?.response) {
+                console.log("eerror", e, (e as any).response.data?.message);
+                showNotification((e as any).response.data?.message);
+            } else {
+                console.log("eerror", e);
+            }
+            // if ((e as any).response)
         }
 
     })
     const handleActions = (method: "EDIT" | "DELETE" | "VIEW", values: { [key: string]: any }, id: number) => {
-        console.log("Handling Action:", method, values, id);
+        // console.log("Handling Action:", method, values, id);
         if (method === "EDIT") {
             setForm({
                 title: values.title ?? "",
@@ -117,16 +130,7 @@ const BookManagement = ({ key = "books" }) => {
             mutate({ method: "DELETE", id });
             setFilter({ ...filter, page: 1 });
         } else if (method === "VIEW") {
-            setForm({
-                title: values.title ?? "",
-                author: values.author ?? "",
-                publisher: values.publisher ?? "",
-                genre: values.genre ?? "",
-                publicationDate: values.publicationDate ?? "",
-                ISBN: values.ISBN ?? ""
-            });
-            setId(id);
-            setOpen(true);
+            setView({ id: id, open: true });
         }
     }
     const handleSubmit = (data: any) => {
@@ -140,6 +144,9 @@ const BookManagement = ({ key = "books" }) => {
     // console.log("list", list);
     return (
         <>
+            <GenericView title="Book Copies" view={view} setView={setView}>
+                <BookCopy key="copies" bookId={view.id} />
+            </GenericView>
             <GenericForm open={open} setOpen={setOpen} initialValue={form} onSubmit={handleSubmit} id={id}>
                 <FormInput name="ISBN" label="ISBN" type="text" required />
                 <FormInput name="title" label="Title" type="text" required />
