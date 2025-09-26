@@ -44,7 +44,7 @@ function NotificationManager() {
       open={notification.open}
       autoHideDuration={4000}
       onClose={handleClose}
-      anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+      anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
     >
       <Alert onClose={() => handleClose(undefined, undefined)} severity={notification.severity} sx={{ width: '100%' }}>
         {notification.message}

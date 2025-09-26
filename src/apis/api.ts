@@ -1,7 +1,7 @@
 import axios from "axios";
 import store from "../store/store";
 import { logout, login, type LoginData } from "../store/features/authSlice";
-import { showNotification } from "../utils/notification";
+// import { showNotification } from "../utils/notification";
 // import { AxiosRequestConfig } from "axios";
 
 // --- Configuration ---
@@ -47,7 +47,6 @@ api.interceptors.request.use(
         store.dispatch(login(refreshed));
 
         req.headers["Authorization"] = `Bearer ${refreshed.accessToken}`;
-        return req;
       }
       req.headers["Authorization"] = `Bearer ${userData.accessToken}`;
       return req;
@@ -59,18 +58,18 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    showNotification("Something went wrong!", "error");
-    console.error("API Error:", error);
-    if (error.response && error.response.status === 401) {
-      // window.location.href = "/login";
-    }
+// api.interceptors.response.use(
+//   (response) => response,
+//   (error) => {
+//     showNotification("Something went wrong!", "error");
+//     console.error("API Error:", error);
+//     if (error.response && error.response.status === 401) {
+//       // window.location.href = "/login";
+//     }
 
-    return Promise.reject(error);
-  }
-);
+//     return Promise.reject(error);
+//   }
+// );
 
 export default api;
 

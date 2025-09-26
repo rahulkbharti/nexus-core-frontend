@@ -9,14 +9,15 @@ import Typography from '@mui/material/Typography';
 import OptionsMenu from './OptionMenu';
 import SelectContent from './SelectContent';
 import MenuContent from './MenuContent';
-import LibraryIcon from '@mui/icons-material/LibraryBooks';
+// import LibraryIcon from '@mui/icons-material/LibraryBooks';
 // import NewMenu from '../../components/Test';
 // import CardAlert from './CardAlert';
 import { useSelector } from 'react-redux';
-import type { AuthState } from '../../store/features/authSlice';
+import { type AuthState } from '../../store/features/authSlice';
+
 
 // import MenuItem from '../../components/Test';
-// import CardAlert from './CardAlert';
+import CardAlert from './CardAlert';
 
 
 const drawerWidth = 240;
@@ -35,6 +36,7 @@ const Drawer = styled(MuiDrawer)({
 
 export default function SideMenu() {
     const userData = useSelector((state: { auth: AuthState }) => state.auth.loginData) ?? null;
+
     return (
         <Drawer
             variant="permanent"
@@ -46,25 +48,27 @@ export default function SideMenu() {
                 },
             }}
         >
-            <Box sx={{ p: 2, mb: 1, display: "flex", alignItems: "center", gap: 1.5 }}>
-                <Avatar sx={{ bgcolor: 'primary.main', width: 40, height: 40 }}>
+            <Box sx={{ p: 2, mb: 1, display: "flex", alignItems: "center", gap: 1.5, alignContent: "center", justifyContent: "left", flexDirection: "row" }}>
+                <img src="/NexusCore.png" alt="Nexus Icon" width={30} />
+                {/* <img src="/NexusLogo.png" alt="Nexus Logo" width={100} /> */}
+                {/* <Avatar sx={{ bgcolor: 'primary.main', width: 40, height: 40 }}>
                     <LibraryIcon />
-                </Avatar>
+                </Avatar> */}
                 <Box>
                     <Typography variant="h6" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
-                        Librarify
+                        Nexus Core
                     </Typography>
-                    {/* CHANGED: Added Slogan/Subtitle */}
                     <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
-                        Librarify pro Api
+                        take it easy
                     </Typography>
                 </Box>
             </Box>
             <Box
                 sx={{
                     display: 'flex',
-                    mt: 'calc(var(--template-frame-height, 0px) + 4px)',
-                    p: 1.5,
+                    mt: 'calc(var(--template-frame-height, 0px) + 3px)',
+                    margin: "0 auto",
+                    mb: 1
                 }}
             >
                 <SelectContent />
@@ -79,7 +83,7 @@ export default function SideMenu() {
                 }}
             >
                 <MenuContent />
-                {/* <CardAlert /> */}
+                <CardAlert />
                 {/* <NewMenu /> */}
             </Box>
 

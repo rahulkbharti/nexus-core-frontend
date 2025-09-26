@@ -1,4 +1,4 @@
-import { Box, Button, Pagination, Stack } from "@mui/material";
+import { Box, Button, LinearProgress, Pagination, Stack } from "@mui/material";
 import GenericTable, { type GenericColumn } from "../../components/GenericTable";
 import AddIcon from '@mui/icons-material/Add';
 import { useState } from "react";
@@ -23,9 +23,9 @@ const columns: GenericColumn[] = [
         label: "Email"
     },
     {
-        id: "updatedAt",
-        label: "Updated At",
-        renderCell: (value: any) => new Date(value).toLocaleString()
+        id: 'isActive',
+        label: "Account Status",
+        renderCell: (value: any) => value ? "ACTIVE" : "INACTIVE"
     },
     {
         id: "createdAt",
@@ -53,7 +53,7 @@ const MemberPage = ({ key = "members" }) => {
     })
     const [filter, setFilter] = useState<filters>({ page: 1, limit: 3 });
     // For Fetching The List
-    const { data: list } = useQuery({
+    const { data: list, isLoading, isFetching } = useQuery({
         queryKey: [key, filter],
         queryFn: async ({ queryKey }) => {
             const [_, filter] = queryKey;
@@ -103,7 +103,6 @@ const MemberPage = ({ key = "members" }) => {
     }
     // Handle Edit, Delete, View Actions
     const handleActions = (method: "EDIT" | "DELETE" | "VIEW", values: { [key: string]: any }, id: number) => {
-
         if (method === "EDIT") {
             setForm({
                 name: values.name ?? "",
@@ -123,7 +122,7 @@ const MemberPage = ({ key = "members" }) => {
             setOpen(true);
         }
     }
-
+    console.log(list)
     return (
         <Box>
             <GenericForm open={open} setOpen={setOpen} initialValue={form} onSubmit={handleSubmit} id={id}>
@@ -133,6 +132,8 @@ const MemberPage = ({ key = "members" }) => {
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
                 <Button variant="contained" startIcon={<AddIcon />} onClick={() => { setOpen(true); setForm({ name: "", email: "" }); setId(null); }}>Add Member</Button>
             </Box>
+            {(isLoading || isFetching) && <LinearProgress sx={{ mb: 1 }} />}
+
             <GenericTable
                 data={(list as any)?.data?.map((d: any) => d.user as any)}
                 columns={columns}
@@ -140,6 +141,7 @@ const MemberPage = ({ key = "members" }) => {
                 handleSort={() => { }}
                 handleEdit={handleActions}
             />
+
             {(list as any)?.pages > 1 && (
                 <Stack sx={{ width: "100%", alignItems: "center", justifyContent: "center" }}>
                     <Pagination count={(list as any).pages} showFirstButton showLastButton onChange={(_e, page) => { setFilter({ ...filter, page }) }} />

@@ -1,4 +1,4 @@
-import { Box, Button, Pagination, Stack, Typography } from "@mui/material";
+import { Box, Button, LinearProgress, Pagination, Stack, Typography } from "@mui/material";
 import GenericTable, { type GenericColumn } from "../../components/GenericTable";
 import AddIcon from '@mui/icons-material/Add';
 import { useState } from "react";
@@ -59,7 +59,7 @@ const RolePage = ({ key = "roles" }) => {
     })
     const [filter, setFilter] = useState<filters>({ page: 1, limit: 3 });
     // For Fetching The List
-    const { data: list } = useQuery({
+    const { data: list, isLoading, isFetching } = useQuery({
         queryKey: [key, filter],
         queryFn: async ({ queryKey }) => {
             const [_, filter] = queryKey;
@@ -140,6 +140,7 @@ const RolePage = ({ key = "roles" }) => {
     // console.log(form.permissions)
     return (
         <Box>
+
             <GenericForm open={open} setOpen={setOpen} initialValue={form} onSubmit={handleSubmit} id={id}>
                 <FormInput name="name" label="Name" type="text" required />
                 <Typography sx={{ my: 2 }}>Role Permissions :</Typography>
@@ -148,6 +149,7 @@ const RolePage = ({ key = "roles" }) => {
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
                 <Button variant="contained" startIcon={<AddIcon />} onClick={() => { setOpen(true); setForm({ name: "", permissions: [] }); setId(null); }}>Add Role</Button>
             </Box>
+            {(isLoading || isFetching) && <LinearProgress sx={{ mb: 1 }} />}
             <GenericTable
                 data={(list as any)?.data}
                 columns={columns}

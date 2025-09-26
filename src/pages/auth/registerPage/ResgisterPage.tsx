@@ -1,4 +1,4 @@
-import { Box, Button, Divider, Link, Stack, Step, StepButton, Stepper } from "@mui/material";
+import { Box, Button, CircularProgress, Divider, Link, Stack, Step, StepButton, Stepper } from "@mui/material";
 import AuthLayout from "../AuthLayout";
 import { useState } from "react";
 import { Formik } from "formik";
@@ -18,24 +18,36 @@ const RegisterPage = () => {
     const steps = ["Verify Email", "Owner Info", "Organization Info"];
     const handleEmailVerfication = async (values: any) => {
         if (!otpId) {
-            const responce = await axios.post(`${AUTH_URL}/auth/admin/verify-email`, { email: values.email });
-            if (responce.status === 200) {
-                const otpId = (responce.data as any)?.otpId;
-                setOTPId(otpId);
-                showNotification('OTP sent to your email!', 'success');
-            } else {
+            try {
+                const responce = await axios.post(`${AUTH_URL}/auth/admin/verify-email`, { email: values.email });
+                if (responce.status === 200) {
+                    const otpId = (responce.data as any)?.otpId;
+                    setOTPId(otpId);
+                    showNotification('OTP sent to your email!', 'success');
+                } else {
+                    showNotification('Failed to send OTP. Please try again.', 'error');
+                }
+            } catch (e) {
+                console.error(e);
                 showNotification('Failed to send OTP. Please try again.', 'error');
             }
+
         } else {
-            const responce = await axios.post(`${AUTH_URL}/auth/admin/verify-otp`, { otpId, otp: values.otp });
-            if (responce.status === 200) {
-                const data = (responce.data as any);
-                setToken(data?.token);
-                setEmail(data?.email);
-                setOTPId(null);
-                setActiveStep(1);
-            } else {
-                alert("Somthing Error")
+            try {
+                const responce = await axios.post(`${AUTH_URL}/auth/admin/verify-otp`, { otpId, otp: values.otp });
+                if (responce.status === 200) {
+                    const data = (responce.data as any);
+                    setToken(data?.token);
+                    setEmail(data?.email);
+                    setOTPId(null);
+                    setActiveStep(1);
+                    showNotification('OTP verified successfully', 'success');
+                } else {
+                    showNotification('OTP verification failed', 'error');
+                }
+            } catch (e) {
+                console.error(e);
+                showNotification('OTP verification failed', 'error');
             }
         }
     }
@@ -45,14 +57,21 @@ const RegisterPage = () => {
             alert("Password and Confirm Password must be same")
             return;
         }
-        const responce = await axios.post(`${AUTH_URL}/auth/admin/register`, { token, email, ...values });
-        if (responce.status === 201) {
-            setToken(null);
-            setActiveStep(3);
-        } else {
-            // console.log(responce);
-            alert("Somthing Error")
+        try {
+            const responce = await axios.post(`${AUTH_URL}/auth/admin/register`, { token, email, ...values });
+            if (responce.status === 201) {
+                setToken(null);
+                setActiveStep(3);
+                showNotification("Succesfully Registered.")
+            } else {
+                // console.log(responce);
+                showNotification("Failed To Register", "error");
+            }
+        } catch (e) {
+            console.error(e);
+            showNotification("Failed To Register", "error");
         }
+
     }
     return (
         <AuthLayout coverImage="https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" >
@@ -82,14 +101,14 @@ const RegisterPage = () => {
                     {activeStep === 0 && (
                         <Box>
                             <Formik initialValues={{ email: "", otp: "" }} onSubmit={handleEmailVerfication}>
-                                {({ handleSubmit }) => (
+                                {({ handleSubmit, isSubmitting }) => (
                                     <form onSubmit={handleSubmit}>
                                         <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
-                                            <FormInput disabled={!!otpId} name="email" label="Email" placeholder="Your Email" required />
-                                            <Button disabled={!!otpId} size="small" type="submit" variant="contained" sx={{ width: "150px" }} >Send OTP</Button>
+                                            <FormInput disabled={!!otpId} name="email" type="email" label="Email" placeholder="Your Email" required />
+                                            <Button disabled={!!otpId} size="small" type="submit" variant="contained" sx={{ width: "150px" }} startIcon={isSubmitting ? <CircularProgress size={16} color="inherit" /> : null}>Send OTP</Button>
                                         </Stack>
                                         <FormInput disabled={!otpId} name="otp" label="OTP" placeholder="OTP..." required />
-                                        <Button disabled={!otpId} size="small" type="submit" variant="contained" sx={{ my: 2 }} fullWidth>Continue</Button>
+                                        <Button disabled={!otpId} size="small" type="submit" variant="contained" sx={{ my: 2 }} fullWidth startIcon={isSubmitting ? <CircularProgress size={16} color="inherit" /> : null}>Continue</Button>
                                     </form>
                                 )}
                             </Formik>
@@ -98,20 +117,20 @@ const RegisterPage = () => {
 
                     {/* Account Creation */}
                     <Formik initialValues={{ name: "", password: "", confirmPassword: "", orgName: "", orgAddress: "" }} onSubmit={handleAdminRegister}>
-                        {({ handleSubmit }) => (
+                        {({ handleSubmit, isSubmitting }) => (
                             <form onSubmit={handleSubmit}>
                                 {activeStep === 1 && (
                                     <>
-                                        <FormInput name="name" label="Owner Name" placeholder="Please Enter Your Name..." />
-                                        <FormInput name="password" label="Password" placeholder="Please Enter Your Password..." />
-                                        <FormInput name="confirmPassword" label="Confirm Password" placeholder="Please Enter Your Password..." />
+                                        <FormInput name="name" label="Owner Name" placeholder="Please Enter Your Name..." required />
+                                        <FormInput name="password" label="Password" type="password" placeholder="Please Enter Your Password..." required />
+                                        <FormInput name="confirmPassword" label="Confirm Password" type="password" placeholder="Please Enter Your Password..." required />
                                         <Button size="small" type="button" variant="contained" sx={{ my: 2 }} fullWidth onClick={() => setActiveStep(2)}>Continue</Button>
                                     </>
                                 )}
                                 {activeStep === 2 && (<>
-                                    <FormInput name="orgName" label="Organization Name" placeholder="Please Enter Your Organization Name..." />
-                                    <FormInput name="orgAddress" label="Organization Address" placeholder="Please Enter Your Organization Address..." />
-                                    <Button size="small" type="submit" variant="contained" sx={{ my: 2 }} fullWidth>Register</Button>
+                                    <FormInput name="orgName" label="Organization Name" placeholder="Please Enter Your Organization Name..." required />
+                                    <FormInput name="orgAddress" label="Organization Address" placeholder="Please Enter Your Organization Address..." required />
+                                    <Button size="small" type="submit" variant="contained" sx={{ my: 2 }} fullWidth startIcon={isSubmitting ? <CircularProgress size={16} color="inherit" /> : null}>Register</Button>
                                 </>)}
 
                             </form>

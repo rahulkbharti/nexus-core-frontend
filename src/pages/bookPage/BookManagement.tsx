@@ -3,10 +3,13 @@ import type { GenericColumn } from "../../components/GenericTable";
 import api from "../../apis/api";
 import { useState } from "react";
 import GenericTable from "../../components/GenericTable";
-import { Box, Button, Pagination, Stack } from "@mui/material";
+import { Box, Button, LinearProgress, Pagination, Stack } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 import FormInput from "../common/FormInput";
 import GenericForm from "../../components/GenericForm";
+import GenericView from "../../components/GenericView";
+import BookCopy from "./BookCopy";
+import { showNotification } from "../../utils/notification";
 
 
 const padStart = (value: any) => value?.toString().padStart(3, "0");
@@ -54,6 +57,10 @@ const columns: GenericColumn[] = [
 ]
 const BookManagement = ({ key = "books" }) => {
     const queryClient = useQueryClient();
+    const [view, setView] = useState({
+        id: 0,
+        open: false
+    });
     const [open, setOpen] = useState(false);
     const [id, setId] = useState<number | null>(null);
     const [form, setForm] = useState({
@@ -66,7 +73,7 @@ const BookManagement = ({ key = "books" }) => {
     });
     const [filter, setFilter] = useState<{ [key: string]: any }>({ page: 1, limit: 4 });
 
-    const { data: list } = useQuery({
+    const { data: list, isLoading, isFetching } = useQuery({
         queryKey: [key, filter],
         queryFn: async ({ queryKey }) => {
             const [_, filter] = queryKey;
@@ -96,12 +103,18 @@ const BookManagement = ({ key = "books" }) => {
             queryClient.invalidateQueries({ queryKey: [key] })
         },
         onError: (e) => {
-            console.log(e)
+            if ((e as any)?.response) {
+                console.log("eerror", e, (e as any).response.data?.message);
+                showNotification((e as any).response.data?.message);
+            } else {
+                console.log("eerror", e);
+            }
+            // if ((e as any).response)
         }
 
     })
     const handleActions = (method: "EDIT" | "DELETE" | "VIEW", values: { [key: string]: any }, id: number) => {
-        console.log("Handling Action:", method, values, id);
+        // console.log("Handling Action:", method, values, id);
         if (method === "EDIT") {
             setForm({
                 title: values.title ?? "",
@@ -117,16 +130,7 @@ const BookManagement = ({ key = "books" }) => {
             mutate({ method: "DELETE", id });
             setFilter({ ...filter, page: 1 });
         } else if (method === "VIEW") {
-            setForm({
-                title: values.title ?? "",
-                author: values.author ?? "",
-                publisher: values.publisher ?? "",
-                genre: values.genre ?? "",
-                publicationDate: values.publicationDate ?? "",
-                ISBN: values.ISBN ?? ""
-            });
-            setId(id);
-            setOpen(true);
+            setView({ id: id, open: true });
         }
     }
     const handleSubmit = (data: any) => {
@@ -140,6 +144,9 @@ const BookManagement = ({ key = "books" }) => {
     // console.log("list", list);
     return (
         <>
+            <GenericView title="Book Copies" view={view} setView={setView}>
+                <BookCopy key="copies" bookId={view.id} />
+            </GenericView>
             <GenericForm open={open} setOpen={setOpen} initialValue={form} onSubmit={handleSubmit} id={id}>
                 <FormInput name="ISBN" label="ISBN" type="text" required />
                 <FormInput name="title" label="Title" type="text" required />
@@ -151,6 +158,7 @@ const BookManagement = ({ key = "books" }) => {
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
                 <Button variant="contained" startIcon={<AddIcon />} onClick={() => { setOpen(true); setForm({ title: "324", author: "234", publisher: "2342", genre: "23423", publicationDate: "", ISBN: "" }); setId(null); }}>Add Book</Button>
             </Box>
+            {(isLoading || isFetching) && <LinearProgress sx={{ mb: 1 }} />}
             <GenericTable data={list?.books || []} columns={columns} handleSort={() => { }} handleEdit={handleActions} keyField="sn" />
             {(list as any)?.totalPages > 1 && (
                 <Stack sx={{ width: "100%", alignItems: "center", justifyContent: "center" }}>

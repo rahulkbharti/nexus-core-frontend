@@ -1,4 +1,4 @@
-import { Box, Button, Divider, Link, Step, StepButton, Stepper } from "@mui/material";
+import { Box, Button, CircularProgress, Divider, Link, Step, StepButton, Stepper } from "@mui/material";
 import AuthLayout from "../AuthLayout";
 
 import { useState } from "react";
@@ -7,6 +7,7 @@ import FormInput from "../../common/FormInput";
 import { Typography } from "@mui/material";
 import { Link as L } from "react-router-dom";
 import axios from "axios";
+import { showNotification } from "../../../utils/notification";
 
 const AUTH_URL = import.meta.env.VITE_API_URL;
 
@@ -18,47 +19,62 @@ const ForgetPassword = () => {
     const steps = ["Send OTP", "Verify OTP", "Change Password"];
     const handleOTPSend = async (values: any) => {
         // console.log(values)
-        const responce = await axios.post(`${AUTH_URL}/auth/send-otp`, { email: values.email });
-        if (responce.status === 200) {
-            const otpId = (responce.data as any)?.otpId;
-            setOTPId(otpId);
-            // console.log(otpId);
-            setActiveStep(1);
-        } else {
-            alert("Somthing Error")
+        try {
+            const responce = await axios.post(`${AUTH_URL}/auth/send-otp`, { email: values.email });
+            if (responce.status === 200) {
+                const otpId = (responce.data as any)?.otpId;
+                setOTPId(otpId);
+                // console.log(otpId);
+                setActiveStep(1);
+                showNotification("OTP sent to your email", "success");
+            }
+        }
+        catch (error: any) {
+            // console.log(error.response.data.message);
+            showNotification(error?.response?.data?.message || "Something went wrong", "error");
         }
 
     }
     const handleVerfiyOTP = async (values: any) => {
         // console.log(values)
-        const responce = await axios.post(`${AUTH_URL}/auth/verify-otp`, { otpId, otp: values?.otp });
-        if (responce.status === 200) {
-            const refreshToken = (responce.data as any)?.resetToken;
-            setResetToken(refreshToken);
-            // console.log(refreshToken);
-            setOTPId(null);
-            setActiveStep(2);
-        } else {
-            alert("Somthing Error")
+        try {
+            const responce = await axios.post(`${AUTH_URL}/auth/verify-otp`, { otpId, otp: values?.otp });
+            if (responce.status === 200) {
+                const refreshToken = (responce.data as any)?.resetToken;
+                setResetToken(refreshToken);
+                // console.log(refreshToken);
+                setOTPId(null);
+                setActiveStep(2);
+                showNotification("OTP verified", "success");
+            } else {
+                alert("Somthing Error")
+            }
+        } catch (e) {
+            showNotification("Invalid OTP", "error");
         }
     }
 
     const handleResetPassword = async (values: any) => {
         // console.log(values)
         if (values?.password !== values?.confirmPassword) {
-            alert("Password and Confirm Password not match");
+            showNotification("Password and Confirm Password not match", "warning");
             return;
         } else if (values?.password.length < 6) {
-            alert("Password must be at least 6 characters long");
+            showNotification("Password must be at least 6 characters long", "warning");
             return;
         }
-        const responce = await axios.post(`${AUTH_URL}/auth/reset-password`, { resetToken, new_password: values?.password });
-        if (responce.status === 200) {
-            // console.log(responce.data);
-            setResetToken(null);
-            setActiveStep(3);
-        } else {
-            alert("Somthing Error")
+        try {
+            const responce = await axios.post(`${AUTH_URL}/auth/reset-password`, { resetToken, new_password: values?.password });
+            if (responce.status === 200) {
+                // console.log(responce.data);
+                setResetToken(null);
+                setActiveStep(3);
+                showNotification("Password changed successfully", "success")
+            } else {
+                alert("Somthing Error")
+            }
+        } catch (e) {
+            showNotification("Failed to change Password", "error")
         }
     }
     return (
@@ -88,10 +104,10 @@ const ForgetPassword = () => {
                     {activeStep === 0 && (
                         <Box>
                             <Formik initialValues={{ email: "" }} onSubmit={handleOTPSend}>
-                                {({ handleSubmit }) => (
+                                {({ handleSubmit, isSubmitting }) => (
                                     <form onSubmit={handleSubmit}>
-                                        <FormInput name="email" label="Email" placeholder="Your Email" />
-                                        <Button size="small" type="submit" variant="contained" sx={{ my: 2 }} fullWidth>Send OTP</Button>
+                                        <FormInput name="email" label="Email" placeholder="Your Email" required />
+                                        <Button size="small" type="submit" variant="contained" sx={{ my: 2 }} fullWidth startIcon={isSubmitting ? <CircularProgress size={16} color="inherit" /> : null}>Send OTP</Button>
                                     </form>
                                 )}
                             </Formik>
@@ -100,10 +116,10 @@ const ForgetPassword = () => {
                     {activeStep === 1 && (
                         <Box>
                             <Formik initialValues={{ otp: "" }} onSubmit={handleVerfiyOTP}>
-                                {({ handleSubmit }) => (
+                                {({ handleSubmit, isSubmitting }) => (
                                     <form onSubmit={handleSubmit}>
                                         <FormInput name="otp" label="OTP" placeholder="OTP..." />
-                                        <Button size="small" type="submit" variant="contained" sx={{ my: 2 }} fullWidth>Verify OTP</Button>
+                                        <Button size="small" type="submit" variant="contained" sx={{ my: 2 }} fullWidth startIcon={isSubmitting ? <CircularProgress size={16} color="inherit" /> : null}>Verify OTP</Button>
                                     </form>
                                 )}
                             </Formik>
@@ -113,11 +129,11 @@ const ForgetPassword = () => {
                     {activeStep === 2 && (
                         <Box>
                             <Formik initialValues={{ password: "", confirmPassword: "" }} onSubmit={handleResetPassword}>
-                                {({ handleSubmit }) => (
+                                {({ handleSubmit, isSubmitting }) => (
                                     <form onSubmit={handleSubmit}>
                                         <FormInput name="password" label="Password" type="password" placeholder="password..." />
                                         <FormInput name="confirmPassword" label="Confirm Password" type="password" placeholder="Confirm Password..." />
-                                        <Button size="small" type="submit" variant="contained" sx={{ my: 2 }} fullWidth>Change Password</Button>
+                                        <Button size="small" type="submit" variant="contained" sx={{ my: 2 }} fullWidth startIcon={isSubmitting ? <CircularProgress size={16} color="inherit" /> : null}>Change Password</Button>
                                     </form>
                                 )}
                             </Formik>
