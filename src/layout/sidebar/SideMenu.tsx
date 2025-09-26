@@ -9,7 +9,7 @@ import Typography from '@mui/material/Typography';
 import OptionsMenu from './OptionMenu';
 import SelectContent from './SelectContent';
 import MenuContent from './MenuContent';
-import LibraryIcon from '@mui/icons-material/LibraryBooks';
+// import LibraryIcon from '@mui/icons-material/LibraryBooks';
 // import NewMenu from '../../components/Test';
 // import CardAlert from './CardAlert';
 import { useSelector } from 'react-redux';
@@ -48,17 +48,18 @@ export default function SideMenu() {
                 },
             }}
         >
-            <Box sx={{ p: 2, mb: 1, display: "flex", alignItems: "center", gap: 1.5 }}>
-                <Avatar sx={{ bgcolor: 'primary.main', width: 40, height: 40 }}>
+            <Box sx={{ p: 2, mb: 1, display: "flex", alignItems: "center", gap: 1.5, alignContent: "center", justifyContent: "left", flexDirection: "row" }}>
+                <img src="/NexusCore.png" alt="Nexus Icon" width={30} />
+                {/* <img src="/NexusLogo.png" alt="Nexus Logo" width={100} /> */}
+                {/* <Avatar sx={{ bgcolor: 'primary.main', width: 40, height: 40 }}>
                     <LibraryIcon />
-                </Avatar>
+                </Avatar> */}
                 <Box>
                     <Typography variant="h6" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
-                        Librarify
+                        Nexus Core
                     </Typography>
-                    {/* CHANGED: Added Slogan/Subtitle */}
                     <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
-                        Librarify pro Api
+                        take it easy
                     </Typography>
                 </Box>
             </Box>

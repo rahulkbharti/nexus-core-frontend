@@ -30,6 +30,7 @@ const App = () => {
               <Route path="/register" element={<PublicRoutes><RegisterPage /></PublicRoutes>} />
               <Route path="/forget-password" element={<PublicRoutes><ForgetPassword /></PublicRoutes>} />
               <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+                <Route path="/" element={<UserPage />} />
                 <Route path="users" element={<UserPage />} />
                 <Route path="roles" element={<RolePage />} />
                 <Route path="books" element={<BookPage />} />

@@ -66,7 +66,10 @@ export default function MenuContent() {
           <ListItem key={index} disablePadding sx={{ display: 'block' }}>
             <ListItemButton component={Link} to={item.path}
               sx={(theme) => ({
-                bgcolor: location.pathname === item.path ? theme.palette.primary.dark : 'transparent',
+                bgcolor: location.pathname === item.path ? theme.palette.primary.dark : 'transparent', color: "theme.palette.common.white",
+                '&:hover': {
+                  bgcolor: location.pathname === item.path ? theme.palette.primary.dark : theme.palette.action.hover,
+                },
               })}>
               <ListItemIcon sx={{ minWidth: "36px" }}>{item.icon}</ListItemIcon>
               <ListItemText primary={item.text} />
