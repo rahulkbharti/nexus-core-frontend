@@ -2,6 +2,11 @@
 
 Nexus Core is a robust, full-stack, multi-tenant SaaS platform engineered from the ground up to serve as a comprehensive Library Management System. Built with a modern TypeScript-first approach, it empowers administrators to create and manage multiple, fully isolated library organizations from a single, intuitive interface. The system features a sophisticated role-based access control system, automated financial tracking, and a seamless user experience for admins, staff, and members.
 
+### Screenshots
+
+![Screenshot of the Dark Mode](./doc/output/dark-mode.png)
+[view more](./OUTPUT.md)
+
 ---
 
 ### Key Features
@@ -51,6 +56,17 @@ The application is built on a modern, scalable, and maintainable technology stac
 - **Hosting**: The application is deployed on **Render.com**.
 
 ---
+
+### Development Journey & Challenges
+
+The development of Nexus Core was a comprehensive journey that involved overcoming several challenges and making critical architectural decisions.
+
+- **Multi-Tenancy Implementation**: Designing a multi-tenant architecture that ensures complete data isolation while maintaining performance was a significant challenge. This was achieved through careful database schema design and the use of middleware to enforce tenant-specific data access.
+- **RBAC System**: Implementing a flexible and granular role-based access control system required careful planning and testing to ensure that permissions were correctly enforced across various user roles.
+- **Email Service Migration**: Transitioning from Nodemailer to the Resend API for email delivery was a crucial step to ensure reliability in a production environment. This involved updating the email sending logic and thoroughly testing the new integration.
+- **Automated Financial Tracking**: Developing a system that automatically generates and tracks membership fees, including handling partial payments and account activation, required intricate logic and thorough testing to ensure accuracy and reliability.
+- **Performance Optimization**: Implementing Redis caching to improve performance and reduce database load was essential for ensuring a smooth user experience, especially as the number of tenants and users grew.
+- **Testing & Quality Assurance**: Setting up a robust testing framework using Vitest to ensure code quality and reliability was a continuous effort throughout the development process.
 
 ### API Documentation
 
