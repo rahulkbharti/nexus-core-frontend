@@ -39,7 +39,7 @@ const RegisterPage = () => {
                     const data = (responce.data as any);
                     setToken(data?.token);
                     setEmail(data?.email);
-                    setOTPId(null);
+                    // setOTPId(null);
                     setActiveStep(1);
                     showNotification('OTP verified successfully', 'success');
                 } else {
@@ -73,6 +73,12 @@ const RegisterPage = () => {
         }
 
     }
+    const handleStepClick = (step: number) => {
+        if (otpId !== null && step !== 0) {
+            setActiveStep(step);
+        }
+        console.log(otpId, step);
+    }
     return (
         <AuthLayout coverImage="https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" >
             <Box>
@@ -84,9 +90,9 @@ const RegisterPage = () => {
                 </Typography>
                 {activeStep !== 3 && (
                     <Stepper nonLinear activeStep={activeStep} >
-                        {steps.map((label) => (
+                        {steps.map((label, index) => (
                             <Step key={label}>
-                                <StepButton color="inherit" >
+                                <StepButton color="inherit" onClick={() => handleStepClick(index)}>
                                     <Typography variant="caption">
                                         {label}
                                     </Typography>
