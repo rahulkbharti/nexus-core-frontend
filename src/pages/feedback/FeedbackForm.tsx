@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
     Container,
     Typography,
@@ -9,116 +9,56 @@ import {
     Grid,
     Paper
 } from '@mui/material';
+import { useMutation } from '@tanstack/react-query';
+import { Formik, Form, Field } from 'formik';
+import * as Yup from 'yup'; // Import Yup for validation
+import api from '../../apis/api';
 
 // Define the structure for our ERP feedback form data
 interface ErpFeedbackState {
-    staffName: string;
-    email: string;
-    libraryName: string;
-    role: string;
-    easeOfUseRating: number | null;
-    featuresRating: number | null;
-    performanceRating: number | null;
-    supportRating: number | null;
+    easeOfUseRating: number; // Changed to number, as we'll use 0 as the "unselected" state
+    featuresRating: number;
+    performanceRating: number;
+    supportRating: number;
     suggestions: string;
 }
 
-// Define the structure for validation errors
-interface FormErrors {
-    staffName?: string;
-    email?: string;
-    libraryName?: string;
-    role?: string;
-    easeOfUseRating?: string;
-    featuresRating?: string;
-    performanceRating?: string;
-    supportRating?: string;
-}
+// Define the Validation Schema using Yup
+const FeedbackSchema = Yup.object().shape({
+    easeOfUseRating: Yup.number()
+        .min(1, 'Please select a rating (1-5)'),
+    featuresRating: Yup.number()
+        .min(1, 'Please select a rating (1-5)'),
+    performanceRating: Yup.number()
+        .min(1, 'Please select a rating (1-5)'),
+    supportRating: Yup.number()
+        .min(1, 'Please select a rating (1-5)')
+});
+
 
 const ErpFeedbackForm: React.FC = () => {
-    // State to hold the form data
-    const [formData, setFormData] = useState<ErpFeedbackState>({
-        staffName: '',
-        email: '',
-        libraryName: '',
-        role: '',
-        easeOfUseRating: 0,
-        featuresRating: 0,
-        performanceRating: 0,
-        supportRating: 0,
-        suggestions: '',
-    });
 
-    // State to hold validation errors
-    const [errors, setErrors] = useState<FormErrors>({});
-    // State to track if the form was successfully submitted
-    const [submitted, setSubmitted] = useState<boolean>(false);
-
-    // Handle changes in text fields
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        setFormData({
-            ...formData,
-            [name]: value,
-        });
-    };
-
-    // Handle changes in the Select (dropdown) component
-    // const handleSelectChange = (e: any) => {
-    //     const { name, value } = e.target;
-    //     setFormData({
-    //         ...formData,
-    //         [name]: value
-    //     });
-    // };
-
-    // Handle changes in the star rating components
-    const handleRatingChange = (name: keyof ErpFeedbackState, value: number | null) => {
-        setFormData({
-            ...formData,
-            [name]: value,
-        });
-    };
-
-    // Validate the form fields
-    const validate = (): FormErrors => {
-        const newErrors: FormErrors = {};
-        if (!formData.staffName.trim()) newErrors.staffName = 'Your name is required';
-        if (!formData.libraryName.trim()) newErrors.libraryName = 'Library name is required';
-        if (!formData.role) newErrors.role = 'Please select your role';
-        if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
-            newErrors.email = 'Email is not valid';
+    // Get isSuccess state to show the thank you message
+    const { mutate: submitErpFeedback, isSuccess } = useMutation({
+        mutationKey: ['erpFeedback'],
+        mutationFn: async (feedbackData: ErpFeedbackState) => {
+            console.log("Submitting ERP Feedback:", feedbackData);
+            const responce = await api.post("/feedback", feedbackData);
+            if (responce.status >= 200 && responce.status < 300) {
+                return Promise.resolve();
+            }
+            return new Promise(resolve => setTimeout(resolve, 1000));
+        },
+        onSuccess: () => {
+            console.log("ERP Feedback submitted successfully");
+        },
+        onError: (error) => {
+            console.error("Error submitting feedback:", error);
         }
-        if (!formData.easeOfUseRating || formData.easeOfUseRating === 0) {
-            newErrors.easeOfUseRating = 'Please provide a rating';
-        }
-        if (!formData.featuresRating || formData.featuresRating === 0) {
-            newErrors.featuresRating = 'Please provide a rating';
-        }
-        if (!formData.performanceRating || formData.performanceRating === 0) {
-            newErrors.performanceRating = 'Please provide a rating';
-        }
-        if (!formData.supportRating || formData.supportRating === 0) {
-            newErrors.supportRating = 'Please provide a rating';
-        }
-        return newErrors;
-    };
-
-    // Handle form submission
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        const formErrors = validate();
-        if (Object.keys(formErrors).length > 0) {
-            setErrors(formErrors);
-        } else {
-            console.log('ERP Feedback Submitted:', formData);
-            setErrors({});
-            setSubmitted(true);
-        }
-    };
+    })
 
     // If submitted, show a thank you message
-    if (submitted) {
+    if (isSuccess) { // Changed from `if (false)`
         return (
             <Container maxWidth="sm">
                 <Paper elevation={3} sx={{ padding: 4, marginTop: 8, textAlign: 'center' }}>
@@ -126,7 +66,7 @@ const ErpFeedbackForm: React.FC = () => {
                         Thank You!
                     </Typography>
                     <Typography variant="body1">
-                        Your feedback has been received. We appreciate you taking the time to help us improve our ERP platform for libraries across India.
+                        Your feedback has been received. We appreciate you taking the time to help us improve.
                     </Typography>
                 </Paper>
             </Container>
@@ -136,92 +76,136 @@ const ErpFeedbackForm: React.FC = () => {
     return (
         <Container maxWidth="md">
             <Paper elevation={3} sx={{ padding: { xs: 2, sm: 4 }, marginTop: 4, borderRadius: '12px' }}>
-                <Box component="form" onSubmit={handleSubmit} noValidate>
+                <Box>
                     <Typography variant="h4" component="h1" align="center" gutterBottom sx={{ fontWeight: 'bold' }}>
-                        ERP Platform Feedback [Implementing Soon]
+                        ERP Platform Feedback
                     </Typography>
                     <Typography variant="body2" align="center" color="textSecondary" paragraph>
                         Your input is vital for improving our ERP system for you and other libraries.
                     </Typography>
 
-                    <Grid container spacing={3}>
-                        {/* Staff Information Section */}
-                        <Grid size={{ xs: 12, md: 6 }}>
-                            <TextField size='small' fullWidth label="Your Name" name="staffName" value={formData.staffName} onChange={handleChange} error={!!errors.staffName} helperText={errors.staffName} required />
-                        </Grid>
-                        <Grid size={{ xs: 12, md: 6 }}>
-                            <TextField size='small' fullWidth label="Your Email (Optional)" name="email" type="email" value={formData.email} onChange={handleChange} error={!!errors.email} helperText={errors.email} />
-                        </Grid>
-                        <Grid size={{ xs: 12, md: 6 }}>
-                            <TextField size='small' fullWidth label="Library Name" name="libraryName" value={formData.libraryName} onChange={handleChange} error={!!errors.libraryName} helperText={errors.libraryName} required />
-                        </Grid>
-                        {/* <Grid size={{ xs: 12, md: 6 }}>
-                            <FormControl fullWidth required error={!!errors.role}>
-                                <InputLabel id="role-select-label">Your Role</InputLabel>
-                                <Select
-                                    size='small'
-                                    labelId="role-select-label"
-                                    id="role-select"
-                                    name="role"
-                                    value={formData.role}
-                                    label="Your Role"
-                                    onChange={handleSelectChange}
-                                >
-                                    <MenuItem value="librarian">Librarian</MenuItem>
-                                    <MenuItem value="admin">Administrator</MenuItem>
-                                    <MenuItem value="staff">Library Staff</MenuItem>
-                                    <MenuItem value="it_support">IT Support</MenuItem>
-                                </Select>
-                                {errors.role && <Typography color="error" variant="caption" sx={{ marginLeft: '14px', marginTop: '4px' }}>{errors.role}</Typography>}
-                            </FormControl>
-                        </Grid> */}
+                    <Formik
+                        initialValues={{
+                            easeOfUseRating: 0,
+                            featuresRating: 0,
+                            performanceRating: 0,
+                            supportRating: 0,
+                            suggestions: ""
+                        }}
+                        validationSchema={FeedbackSchema} // Add the validation schema
+                        onSubmit={(values, { setSubmitting }) => {
+                            console.log("Form Submitted with values:", values);
+                            submitErpFeedback(values); // Call the mutation
+                            setSubmitting(false);
+                        }}
+                    >
+                        {({ values, setFieldValue, handleChange, handleSubmit, errors, touched, isSubmitting }) => (
+                            <Form onSubmit={handleSubmit}>
+                                <Grid container spacing={3} sx={{ marginTop: 2 }}>
 
-                        {/* Ratings Section */}
-                        <Grid size={{ xs: 12 }}>
-                            <Typography variant="h6" sx={{ mb: 2, borderBottom: '1px solid #ccc', pb: 1 }}>Rate the ERP Platform</Typography>
-                        </Grid>
+                                    {/* Ratings Section */}
+                                    <Grid size={{ xs: 12, md: 6 }}> {/* FIX: Was <Grid size=...> */}
+                                        <Box>
+                                            <Typography component="legend">Ease of Use & User Interface</Typography>
+                                            <Rating
+                                                name="easeOfUseRating"
+                                                value={values.easeOfUseRating}
+                                                // If user deselects, it becomes null. We set it to 0 to trigger validation.
+                                                onChange={(_, value) => setFieldValue('easeOfUseRating', value ?? 0)}
+                                            />
+                                            {/* Show Error Message */}
+                                            {errors.easeOfUseRating && touched.easeOfUseRating && (
+                                                <Typography variant="caption" color="error">
+                                                    {errors.easeOfUseRating}
+                                                </Typography>
+                                            )}
+                                        </Box>
+                                    </Grid>
 
-                        <Grid size={{ xs: 12, md: 6 }}>
-                            <Box>
-                                <Typography component="legend">Ease of Use & User Interface</Typography>
-                                <Rating name="easeOfUseRating" value={formData.easeOfUseRating} onChange={(_event, newValue) => handleRatingChange('easeOfUseRating', newValue)} />
-                                {errors.easeOfUseRating && <Typography color="error" variant="caption" display="block">{errors.easeOfUseRating}</Typography>}
-                            </Box>
-                        </Grid>
-                        <Grid size={{ xs: 12, md: 6 }}>
-                            <Box>
-                                <Typography component="legend">Features & Functionality</Typography>
-                                <Rating name="featuresRating" value={formData.featuresRating} onChange={(_event, newValue) => handleRatingChange('featuresRating', newValue)} />
-                                {errors.featuresRating && <Typography color="error" variant="caption" display="block">{errors.featuresRating}</Typography>}
-                            </Box>
-                        </Grid>
-                        <Grid size={{ xs: 12, md: 6 }}>
-                            <Box>
-                                <Typography component="legend">Performance & Speed</Typography>
-                                <Rating name="performanceRating" value={formData.performanceRating} onChange={(_event, newValue) => handleRatingChange('performanceRating', newValue)} />
-                                {errors.performanceRating && <Typography color="error" variant="caption" display="block">{errors.performanceRating}</Typography>}
-                            </Box>
-                        </Grid>
-                        <Grid size={{ xs: 12, md: 6 }}>
-                            <Box>
-                                <Typography component="legend">Customer Support & Training</Typography>
-                                <Rating name="supportRating" value={formData.supportRating} onChange={(_event, newValue) => handleRatingChange('supportRating', newValue)} />
-                                {errors.supportRating && <Typography color="error" variant="caption" display="block">{errors.supportRating}</Typography>}
-                            </Box>
-                        </Grid>
+                                    <Grid size={{ xs: 12, md: 6 }}> {/* FIX: Was <Grid size=...> */}
+                                        <Box>
+                                            <Typography component="legend">Features & Functionality</Typography>
+                                            <Rating
+                                                name="featuresRating"
+                                                value={values.featuresRating}
+                                                onChange={(_, value) => setFieldValue('featuresRating', value ?? 0)}
+                                            />
+                                            {/* Show Error Message */}
+                                            {errors.featuresRating && touched.featuresRating && (
+                                                <Typography variant="caption" color="error">
+                                                    {errors.featuresRating}
+                                                </Typography>
+                                            )}
+                                        </Box>
+                                    </Grid>
 
-                        {/* Suggestions Text Area */}
-                        <Grid size={{ xs: 12 }}>
-                            <TextField fullWidth label="What can we improve? Any features you're missing?" name="suggestions" multiline rows={4} value={formData.suggestions} onChange={handleChange} placeholder="Please provide details..." />
-                        </Grid>
+                                    <Grid size={{ xs: 12, md: 6 }}> {/* FIX: Was <Grid size=...> */}
+                                        <Box>
+                                            <Typography component="legend">Performance & Speed</Typography>
+                                            <Rating
+                                                name="performanceRating"
+                                                value={values.performanceRating}
+                                                onChange={(_, value) => setFieldValue('performanceRating', value ?? 0)}
+                                            />
+                                            {/* Show Error Message */}
+                                            {errors.performanceRating && touched.performanceRating && (
+                                                <Typography variant="caption" color="error">
+                                                    {errors.performanceRating}
+                                                </Typography>
+                                            )}
+                                        </Box>
+                                    </Grid>
 
-                        {/* Submit Button */}
-                        <Grid size={{ xs: 12 }} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                            <Button variant='contained' type="submit" size='small'>
-                                Submit ERP Feedback
-                            </Button>
-                        </Grid>
-                    </Grid>
+                                    <Grid size={{ xs: 12, md: 6 }}> {/* FIX: Was <Grid size=...> */}
+                                        <Box>
+                                            <Typography component="legend">Customer Support & Training</Typography>
+                                            <Rating
+                                                name="supportRating"
+                                                value={values.supportRating}
+                                                onChange={(_, value) => setFieldValue('supportRating', value ?? 0)}
+                                            />
+                                            {/* Show Error Message */}
+                                            {errors.supportRating && touched.supportRating && (
+                                                <Typography variant="caption" color="error">
+                                                    {errors.supportRating}
+                                                </Typography>
+                                            )}
+                                        </Box>
+                                    </Grid>
+
+                                    {/* Suggestions Text Area */}
+                                    <Grid size={{ xs: 12 }}> {/* FIX: Was <Grid size=...> */}
+                                        <Field
+                                            as={TextField}
+                                            fullWidth
+                                            label="What can we improve? Any features you're missing?"
+                                            name="suggestions"
+                                            multiline
+                                            rows={4}
+                                            placeholder="Please provide details..."
+                                            value={values.suggestions}
+                                            onChange={handleChange}
+                                            // Show errors from Formik
+                                            error={touched.suggestions && Boolean(errors.suggestions)}
+                                            helperText={touched.suggestions && errors.suggestions}
+                                        />
+                                    </Grid>
+
+                                    {/* Submit Button */}
+                                    <Grid size={{ xs: 12 }} sx={{ display: 'flex', justifyContent: 'flex-end' }}> {/* FIX: Was <Grid size=...> */}
+                                        <Button
+                                            variant='contained'
+                                            type="submit"
+                                            size='small'
+                                            disabled={isSubmitting} // Disable button while submitting
+                                        >
+                                            {isSubmitting ? 'Submitting...' : 'Submit ERP Feedback'}
+                                        </Button>
+                                    </Grid>
+                                </Grid>
+                            </Form>
+                        )}
+                    </Formik>
                 </Box>
             </Paper>
         </Container>
@@ -229,4 +213,3 @@ const ErpFeedbackForm: React.FC = () => {
 };
 
 export default ErpFeedbackForm;
-
