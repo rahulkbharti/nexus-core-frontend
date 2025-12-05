@@ -13,7 +13,7 @@ export type LoginData = {
   role: "ADMIN" | "STAFF" | "MEMBER";
   permissions: string[];
   organization: OrganizationData;
-  exp?: number;
+  exp?: number; //  acceess_token
 };
 
 export type AuthState = {

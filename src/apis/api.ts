@@ -22,35 +22,46 @@ api.interceptors.request.use(
     if (userData === null) return req;
 
     try {
+      const BUFFER_TIME = 5 * 1000; // 5 seconds
       const currentTime = Date.now();
-      const isExpired = userData.exp && currentTime > userData.exp;
-
+      const isExpired =
+        userData.exp && currentTime > userData.exp - BUFFER_TIME;
       if (isExpired && !req._retry) {
+        console.log("refreshing token");
         req._retry = true;
-
         const response = await axios.post(`${AUTH_URL}/auth/refresh`, {
           refreshToken: userData.refreshToken,
         });
+
+        // console.log(response);
+
         if (response.status !== 200) {
           store.dispatch(logout());
+          // window.location.href = "/login";
           return Promise.reject("Unable to refresh token, logging out.");
         }
-        const refreshData = response.data as { refreshed_access_token: string };
-        console.log(
-          "Response from refresh endpoint:",
-          refreshData.refreshed_access_token
-        );
+        const refreshData = response.data as {
+          refreshed_access_token: string;
+          exp: number;
+        };
+        // console.log(
+        //   "Response from refresh endpoint:",
+        //   refreshData.refreshed_access_token
+        // );
         const refreshed = { ...userData };
         refreshed.accessToken = refreshData.refreshed_access_token;
-        refreshed.exp = Date.now() + 15 * 60 * 1000;
-        console.log("Storing refreshed token:", refreshed);
+        refreshed.exp = refreshData.exp;
+        // console.log("Storing refreshed token:", refreshed);
         store.dispatch(login(refreshed));
 
         req.headers["Authorization"] = `Bearer ${refreshed.accessToken}`;
+        return req;
       }
       req.headers["Authorization"] = `Bearer ${userData.accessToken}`;
       return req;
     } catch (error) {
+      store.dispatch(logout());
+      // window.location.href = "/login";
       console.error("Token refresh failed:", error);
       return req;
     }
