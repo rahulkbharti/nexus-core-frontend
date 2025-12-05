@@ -20,15 +20,21 @@ const RegisterPage = () => {
         if (!otpId) {
             try {
                 const responce = await axios.post(`${AUTH_URL}/auth/admin/verify-email`, { email: values.email });
+
+
                 if (responce.status === 200) {
                     const otpId = (responce.data as any)?.otpId;
                     setOTPId(otpId);
                     showNotification('OTP sent to your email!', 'success');
                 } else {
-                    showNotification('Failed to send OTP. Please try again.', 'error');
+
+                    showNotification("Error while sending OTP", 'error');
                 }
             } catch (e) {
                 console.error(e);
+                if (typeof e === "object" && e !== null && "response" in e && (e as any).response?.data?.message) {
+                    return showNotification((e as any).response.data.message, "error");
+                }
                 showNotification('Failed to send OTP. Please try again.', 'error');
             }
 

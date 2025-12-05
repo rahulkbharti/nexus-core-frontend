@@ -23,6 +23,8 @@ const LearningRQ = ({ key = "posts" }: { key: string }) => {
             console.log("list", data);
             return data;
         },
+        refetchOnWindowFocus: false, // Disable refetch on window focus
+        staleTime: 1 * 60 * 1000, // 5 minutes
     })
 
     const { mutate: mutate } = useMutation({

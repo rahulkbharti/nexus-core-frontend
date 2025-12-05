@@ -18,24 +18,26 @@ type PaymentManagementProps = {
 };
 
 const PaymentManagement: React.FC<PaymentManagementProps> = ({ feeId = 0, memberId = 0 }) => {
-    console.log("Payments", feeId, memberId)
+    // console.log("Payments", feeId, memberId)
     const [filter, setFilter] = useState({ page: 1, limit: 4 });
     const { data: list } = useQuery({
         queryKey: ['payments'],
         queryFn: async ({ queryKey }) => {
-            console.log(queryKey)
+            // console.log(queryKey)
             try {
                 const responce = await api.get("/fees/payments");
-                console.log(responce);
+                // console.log(responce);
                 return responce.data;
             }
             catch (e) {
                 console.log(e)
             }
             return []
-        }
+        },
+        refetchOnWindowFocus: false, // Disable refetch on window focus
+        staleTime: 1 * 60 * 1000, // 5 minutes
     })
-    console.log(list)
+    // console.log(list)
     return (
         <>
             <GenericTable data={((list as any)?.payments || [])} columns={columns} handleEdit={() => { }} handleSort={() => { }} keyField="id" actions={false} />

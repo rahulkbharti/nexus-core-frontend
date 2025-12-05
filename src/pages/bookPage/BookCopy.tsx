@@ -60,7 +60,10 @@ const BookCopy = ({ key = "copies", bookId = 0 }) => {
                 console.log(e)
             }
             return []
-        }
+        },
+        refetchOnWindowFocus: false, // Disable refetch on window focus
+        staleTime: 1 * 60 * 1000, // 5 minutes
+
     })
     const { mutate: mutate } = useMutation({
         mutationFn: async ({ method, data, id }: { method: "POST" | "PUT" | "DELETE"; data?: any, id?: string | number }) => {
@@ -115,7 +118,7 @@ const BookCopy = ({ key = "copies", bookId = 0 }) => {
             mutate(data);
         }
     }
-    console.log(list, bookId)
+    // console.log(list, bookId)
     return (
         <>
             <GenericForm open={open} id={id} setOpen={setOpen} initialValue={form} onSubmit={handleSubmit}>

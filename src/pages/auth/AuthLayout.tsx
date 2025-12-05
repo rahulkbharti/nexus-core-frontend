@@ -22,7 +22,7 @@ const Container = ({ children }: { children: React.ReactNode }) => (
     <Paper
         sx={{
             display: "flex",
-            width: 900,
+            width: { xs: '90%', sm: '80%', md: 900 },
             minHeight: 500,
             boxShadow: "0 4px 20px background.default" as string,
         }}
@@ -39,6 +39,7 @@ const ImageSection = ({ imageUrl }: { imageUrl: string }) => (
             backgroundSize: "cover",
             borderTopLeftRadius: 1,
             borderBottomLeftRadius: 1,
+            display: { xs: 'none', md: 'block' }
         }}
     />
 );
@@ -46,7 +47,7 @@ const ImageSection = ({ imageUrl }: { imageUrl: string }) => (
 const FormSection = ({ children }: { children: React.ReactNode }) => (
     <Box
         sx={{
-            width: "50%",
+            width: { xs: '100%', md: '50%' },
             flex: 1,
             p: 5,
             display: "flex",

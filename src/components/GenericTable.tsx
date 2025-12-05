@@ -66,7 +66,7 @@ const GenericTable: React.FC<GenericTableProps> = ({
     };
 
     return (
-        <Paper sx={{ width: '100%', mb: 2 }}>
+        <Paper sx={{ width: '100%', mb: 2, overflowX: 'auto' }}>
             <TableContainer sx={{ minHeight: 400 }}>
                 <Table size='small' aria-label="generic table">
                     <TableHead>
@@ -75,7 +75,7 @@ const GenericTable: React.FC<GenericTableProps> = ({
                                 <TableCell
                                     key={column.id}
                                     align={column.align || 'left'}
-                                    sx={{ width: column.width, fontWeight: 'bold' }}
+                                    sx={{ width: column.width, fontWeight: 'bold', whiteSpace: 'nowrap' }}
                                 >
                                     <TableSortLabel
                                         // active={orderBy === column.id}
@@ -88,7 +88,7 @@ const GenericTable: React.FC<GenericTableProps> = ({
                                 </TableCell>
                             ))}
                             {actions && (
-                                <TableCell align="center" sx={{ width: '15%', fontWeight: 'bold' }}>
+                                <TableCell align="center" sx={{ width: '15%', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
                                     ACTIONS
                                 </TableCell>
                             )}
@@ -101,7 +101,7 @@ const GenericTable: React.FC<GenericTableProps> = ({
                                     <TableCell
                                         key={column.id}
                                         align={column.align || 'left'}
-                                        sx={{ width: column.width }}
+                                        sx={{ whiteSpace: 'nowrap' }}
                                     >
                                         {renderCellContent(row, column)}
                                     </TableCell>

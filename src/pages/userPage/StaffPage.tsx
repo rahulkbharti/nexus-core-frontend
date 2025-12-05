@@ -74,6 +74,8 @@ const StaffPage = ({ key = "members" }) => {
             // console.log("list", data);
             return data;
         },
+        refetchOnWindowFocus: false, // Disable refetch on window focus
+        staleTime: 5 * 60 * 1000, // 5 minutes
     })
     // Getting Role
     const { data: roles } = useQuery({
@@ -82,6 +84,8 @@ const StaffPage = ({ key = "members" }) => {
             const data = (await api.get("/auth/role") as any).data;
             return data;
         },
+        refetchOnWindowFocus: false, // Disable refetch on window focus
+        staleTime: 1 * 60 * 1000, // 5 minutes
     })
     // For Mutating The Data (Create, Update, Delete)
     const { mutate: mutate } = useMutation({

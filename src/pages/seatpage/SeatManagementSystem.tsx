@@ -43,7 +43,9 @@ const SeatManagementSystem: React.FC = () => {
         queryFn: async () => {
             const responce = await api.get('/halls');
             return (responce.data as { halls: any[] })?.halls ?? [];
-        }
+        },
+        refetchOnWindowFocus: false, // Disable refetch on window focus
+        staleTime: 1 * 60 * 1000, // 5 minutes
     })
 
     //Form Handling

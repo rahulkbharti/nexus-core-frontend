@@ -43,7 +43,7 @@ const LoginPage = () => {
         // console.log(values)
         try {
             const response = await axios.post<LoginResponse>(`${AUTH_URL}/auth/login`, values);
-            console.log("sds", response);
+            // console.log("sds", response);
             if (response.status === 200) {
                 const data = response.data.tokenObj
                 const loginData: LoginData = {
@@ -96,7 +96,7 @@ const LoginPage = () => {
                             name: data.user.organization.name,
                             address: data.user.organization.address
                         },
-                        exp: Date.now() + 15 * 60 * 1000, // Token expiration time (15 minutes from now)
+                        exp: Date.now() + 11 * 60 * 1000, // Token expiration time (15 minutes from now)
                     }
                     dispatch(login(loginData));
                     // console.log("Login successful", loginData);

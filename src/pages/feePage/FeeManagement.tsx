@@ -28,7 +28,9 @@ const FeesManagementSystem: React.FC = () => {
             const [_, filter] = queryKey;
             const data = (await api.get("/fees", { params: { ...(typeof filter === "object" && filter !== null ? filter : {}) } }) as any).data;
             return data;
-        }
+        },
+        refetchOnWindowFocus: false, // Disable refetch on window focus
+        staleTime: 1 * 60 * 1000, // 5 minutes
     })
     // handle Peyments 
     const { mutate: Pay } = useMutation({

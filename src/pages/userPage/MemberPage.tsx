@@ -62,6 +62,8 @@ const MemberPage = ({ key = "members" }) => {
             // console.log("list", data);
             return data;
         },
+        refetchOnWindowFocus: false, // Disable refetch on window focus
+        staleTime: 1 * 60 * 1000, // 5 minutes
     })
     // For Mutating The Data (Create, Update, Delete)
     const { mutate: mutate } = useMutation({
@@ -122,7 +124,7 @@ const MemberPage = ({ key = "members" }) => {
             setOpen(true);
         }
     }
-    console.log(list)
+    // console.log(list)
     return (
         <Box>
             <GenericForm open={open} setOpen={setOpen} initialValue={form} onSubmit={handleSubmit} id={id}>

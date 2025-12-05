@@ -36,7 +36,7 @@ export default function SideMenuMobile({ open, toggleDrawer }: SideMenuMobilePro
                     height: '100%',
                 }}
             >
-                <Stack direction="row" sx={{ p: 2, pb: 0, gap: 1 }}>
+                {/* <Stack direction="row" sx={{ p: 2, pb: 0, gap: 1 }}>
                     <Stack
                         direction="row"
                         sx={{ gap: 1, alignItems: 'center', flexGrow: 1, p: 1 }}
@@ -54,8 +54,8 @@ export default function SideMenuMobile({ open, toggleDrawer }: SideMenuMobilePro
                     <MenuButton showBadge>
                         <NotificationsRoundedIcon />
                     </MenuButton>
-                </Stack>
-                <Divider />
+                </Stack> */}
+                {/* <Divider /> */}
                 <Stack sx={{ flexGrow: 1 }}>
                     <MenuContent />
                     <Divider />

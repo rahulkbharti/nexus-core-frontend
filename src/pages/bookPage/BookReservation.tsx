@@ -57,7 +57,9 @@ const BookReservation = ({ key = "books" }) => {
             const data = (await api.get("/books", { params: { ...(typeof filter === "object" && filter !== null ? filter : {}) } }) as any).data;
             // console.log("list", data);
             return data;
-        }
+        },
+        refetchOnWindowFocus: false, // Disable refetch on window focus
+        staleTime: 1 * 60 * 1000, // 5 minutes
     });
     const { mutate: mutate } = useMutation({
         mutationFn: async ({ method, data, id }: { method: "POST" | "PUT" | "DELETE"; data?: any, id?: string | number }) => {

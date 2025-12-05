@@ -14,8 +14,7 @@ import api from '../../apis/api';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout, type AuthState } from '../../store/features/authSlice';
-// import { useSelector } from 'react-redux';
-// import type { AuthState } from '../../store/features/authSlice';
+import { CircularProgress } from '@mui/material';
 
 
 const MenuItem = styled(MuiMenuItem)({
@@ -25,9 +24,9 @@ const MenuItem = styled(MuiMenuItem)({
 export default function OptionsMenu() {
   const authData = useSelector((state: { auth: AuthState }) => state?.auth);
   const dispatch = useDispatch();
-  // console.log(authData)
   const navigate = useNavigate()
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [isLoggingOut, setIsLoggingOut] = React.useState(false);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -37,20 +36,29 @@ export default function OptionsMenu() {
   };
 
 
-  const handleLogout = async () => {
-    const data = authData?.loginData;
-    const responce = await api.post("/auth/logout", {
-      accessToken: data?.accessToken,
-      refreshToken: data?.refreshToken,
-    });
-    if (responce.status === 200) {
-      dispatch(logout());
-      navigate("/login");
+  const handleLogout = async (callApi = true) => {
+    setIsLoggingOut(true);
+    try {
+      if (callApi) {
+        const data = authData?.loginData;
+        await api.post("/auth/logout", {
+          accessToken: data?.accessToken,
+          refreshToken: data?.refreshToken,
+        });
+      }
+    } catch (error) {
+      console.error("Logout failed", error);
+    } finally {
+      setTimeout(() => {
+        dispatch(logout());
+        navigate("/login");
+        setIsLoggingOut(false);
+      }, 1000);
     }
   }
-  // console.log("authData", authData);
   if (!authData) {
     navigate("/login");
+    return null;
   }
   return (
     <React.Fragment>
@@ -88,7 +96,8 @@ export default function OptionsMenu() {
         <MenuItem onClick={handleClose}>Settings</MenuItem> */}
         {/* <Divider /> */}
         <MenuItem
-          onClick={handleClose}
+          onClick={() => handleLogout()}
+          disabled={isLoggingOut}
           sx={{
             [`& .${listItemIconClasses.root}`]: {
               ml: 'auto',
@@ -96,9 +105,9 @@ export default function OptionsMenu() {
             },
           }}
         >
-          <ListItemText onClick={handleLogout}>Logout</ListItemText>
+          <ListItemText>Logout</ListItemText>
           <ListItemIcon>
-            <LogoutRoundedIcon fontSize="small" />
+            {isLoggingOut ? <CircularProgress size={20} /> : <LogoutRoundedIcon fontSize="small" />}
           </ListItemIcon>
         </MenuItem>
       </Menu>
