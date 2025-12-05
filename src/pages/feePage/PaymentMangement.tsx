@@ -17,12 +17,12 @@ type PaymentManagementProps = {
     memberId?: number
 };
 
-const PaymentManagement: React.FC<PaymentManagementProps> = ({ feeId = 0, memberId = 0 }) => {
+const PaymentManagement: React.FC<PaymentManagementProps> = ({ }) => {
     // console.log("Payments", feeId, memberId)
     const [filter, setFilter] = useState({ page: 1, limit: 4 });
     const { data: list } = useQuery({
         queryKey: ['payments'],
-        queryFn: async ({ queryKey }) => {
+        queryFn: async ({ }) => {
             // console.log(queryKey)
             try {
                 const responce = await api.get("/fees/payments");
